@@ -1,10 +1,13 @@
 <script lang="ts">
   import { mdiWindowClose, mdiWindowMaximize, mdiWindowMinimize, mdiWindowRestore } from '@mdi/js';
+  import { getTranslate } from '@tolgee/svelte';
 
   import SvgIcon from './SVGIcon.svelte';
 
   import { version } from '$lib/store/settingsStore';
   import { Quit, WindowMinimise, WindowToggleMaximise } from '$wailsjs/runtime';
+
+  const { t } = getTranslate();
 
   function minimize() {
     WindowMinimise();
@@ -25,7 +28,7 @@
   <div class="dragregion grow flex items-center">
     <img class="h-7 pl-4 pr-2" alt="SMM Icon" src="/images/smm_icon_small.png" />
     <div>
-      <span class="app-title pt-3 text-base">Satisfactory Mod Manager v{$version}</span>
+      <span class="app-title pt-3 text-base">{$t('satisfactory-mod-manager')} v{$version}</span>
     </div>
   </div>
 

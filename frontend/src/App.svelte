@@ -2,8 +2,13 @@
   import './_global.postcss';
   import { arrow, autoUpdate, computePosition, flip, offset, shift, size } from '@floating-ui/dom';
   import { Modal, initializeStores, storePopup } from '@skeletonlabs/skeleton';
+  import { DevTools, FormatSimple, Tolgee, TolgeeProvider } from '@tolgee/svelte';
   import { setContextClient } from '@urql/svelte';
 
+  import enCommon from './i18n/common/en.json';
+  import zhHansCommon from './i18n/common/zh-Hans.json';
+
+  import InstallsErrorCard from '$lib/components/InstallsErrorCard.svelte';
   import TitleBar from '$lib/components/TitleBar.svelte';
   import LeftBar from '$lib/components/left-bar/LeftBar.svelte';
   import ModDetails from '$lib/components/mod-details/ModDetails.svelte';
@@ -17,8 +22,8 @@
   import { getModalStore, initializeModalStore } from '$lib/skeletonExtensions';
   import { installs, invalidInstalls, progress } from '$lib/store/ficsitCLIStore';
   import { error, expandedMod, siteURL } from '$lib/store/generalStore';
-  import { konami } from '$lib/store/settingsStore';
-  import { ExpandMod, GenerateDebugInfo, UnexpandMod } from '$wailsjs/go/app/app';
+  import { konami, language } from '$lib/store/settingsStore';
+  import { ExpandMod, UnexpandMod } from '$wailsjs/go/app/app';
   import { Environment, EventsOn } from '$wailsjs/runtime';
 
   initializeStores();
@@ -43,6 +48,30 @@
 
   setContextClient(initializeGraphQLClient(apiEndpointURL));
 
+  const tolgee = Tolgee()
+    .use(DevTools())
+    .use(FormatSimple())
+    .init({
+      language: $language,
+      fallbackLanguage: 'en',
+
+      // for development
+      apiUrl: import.meta.env.VITE_TOLGEE_API_URL,
+      apiKey: import.meta.env.VITE_TOLGEE_API_KEY,
+
+      // for production
+      staticData: {
+        en: enCommon,
+        'zh-Hans':zhHansCommon,
+      },
+    });
+
+  language.subscribe((lang) => {
+    if(lang !== tolgee.getLanguage()) {
+      tolgee.changeLanguage(lang);
+    }
+  });
+
   let windowExpanded = false;
 
   $: if ($expandedMod) {
@@ -61,18 +90,13 @@
   $: pendingExpand = $expandedMod && !windowExpanded;
 
   let invalidInstallsError = false;
-  let noInstallsError = false;
   let focusOnEntry: HTMLSpanElement;
 
   const installsInit = installs.isInit;
   const invalidInstallsInit = invalidInstalls.isInit;
 
   $: if($installsInit && $invalidInstallsInit && $installs.length === 0) {
-    if($invalidInstalls.length > 0) {
-      invalidInstallsError = true;
-    } else {
-      noInstallsError = true;
-    }
+    invalidInstallsError = true;
   }
 
   const modalStore = getModalStore();
@@ -158,48 +182,28 @@
   });
 </script>
 
-<div class="flex flex-col h-screen w-screen select-none">
-  {#if frameless}
-    <TitleBar />
-  {/if}
-  <div class="flex grow h-0">
-    <LeftBar />
-    <div class="flex flex-auto @container/mod-list-wrapper z-[1]">
-      <div class="{$expandedMod && !pendingExpand ? 'w-2/5 hidden @3xl/mod-list-wrapper:block @3xl/mod-list-wrapper:flex-auto' : 'w-full'}" class:max-w-[42.5rem]={!!$expandedMod}>
-        <ModsList
-          hideMods={noInstallsError || invalidInstallsError}
-          on:expandedMod={() => {
-            focusOnEntry.focus();
-          }}>
-          <div class="card my-auto mr-4">
-            <header class="card-header font-bold text-2xl text-center">
-              {#if noInstallsError}
-                No Satisfactory installs found
-              {:else}
-                {$invalidInstalls.length} invalid Satisfactory install{$invalidInstalls.length !== 1 ? 's' : ''} found
-              {/if}
-            </header>
-            <section class="p-4">
-              <p class="text-base text-center">
-                Seems wrong? Click the button below and send the generated zip file on the <a class="text-primary-600 underline" href="https://discord.gg/xkVJ73E">modding discord</a> in #help-using-mods.
-              </p>
-            </section>
-            <footer class="card-footer">
-              <button
-                class="btn text-primary-600 w-full"
-                on:click={GenerateDebugInfo}>
-                Generate debug info
-              </button>
-            </footer>
-          </div>
-        </ModsList>
-      </div>
-      <div class="w-3/5" class:grow={!pendingExpand} class:hidden={!$expandedMod}>
-        <ModDetails bind:focusOnEntry/>
+<TolgeeProvider tolgee={tolgee}>
+  <div slot="fallback">Loading translations...</div>
+  <div class="flex flex-col h-screen w-screen select-none">
+    {#if frameless}
+      <TitleBar />
+    {/if}
+    <div class="flex grow h-0">
+      <LeftBar />
+      <div class="flex flex-auto @container/mod-list-wrapper z-[1]">
+        <div class="{$expandedMod && !pendingExpand ? 'w-2/5 hidden @3xl/mod-list-wrapper:block @3xl/mod-list-wrapper:flex-auto' : 'w-full'}" class:max-w-[42.5rem]={!!$expandedMod}>
+          <ModsList hideMods={invalidInstallsError} on:expandedMod={() => { focusOnEntry.focus(); }}>
+            <InstallsErrorCard />
+          </ModsList>
+        </div>
+        <div class="w-3/5" class:grow={!pendingExpand} class:hidden={!$expandedMod}>
+          <ModDetails bind:focusOnEntry/>
+        </div>
       </div>
     </div>
   </div>
-</div>
+  <Modal components={modalRegistry} />
+</TolgeeProvider>
 
 <!--
   skeleton modals don't provide a way to make them persistent (i.e. ignore mouse clicks outside and escape key)
@@ -208,4 +212,3 @@
 <svelte:window
   on:keydown|capture|nonpassive={modalKeyDown}
   on:mousedown|capture|nonpassive={modalMouseDown} />
-<Modal components={modalRegistry} />

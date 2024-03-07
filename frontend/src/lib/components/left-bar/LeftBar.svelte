@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiAlert, mdiCheckCircle, mdiCloseCircle, mdiDownload, mdiFolderOpen, mdiHelpCircle, mdiLoading, mdiPencil, mdiPlusCircle, mdiServerNetwork, mdiTrashCan, mdiUpload, mdiWeb } from '@mdi/js';
   import { type PopupSettings, popup } from '@skeletonlabs/skeleton';
+  import { getTranslate } from '@tolgee/svelte';
   import _ from 'lodash';
   import { siDiscord, siGithub } from 'simple-icons/icons';
 
@@ -21,8 +22,9 @@
   import { ExportCurrentProfile } from '$wailsjs/go/ficsitcli/ficsitCLI';
   import { common, ficsitcli } from '$wailsjs/go/models';
   import { BrowserOpenURL } from '$wailsjs/runtime/runtime';
-  
+
   const modalStore = getModalStore();
+  const { t } = getTranslate();
 
   const selectedInstallPathInit = selectedInstall.isInit;
   const selectedProfileInit = selectedProfile.isInit;
@@ -42,7 +44,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -62,7 +64,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -79,7 +81,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -93,7 +95,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -115,7 +117,7 @@
 <div class="flex flex-col h-full p-4 space-y-4 h-md:space-y-8 left-bar w-[22rem] min-w-[22rem] ">
   <div class="flex flex-col flex-auto h-full w-full space-y-4 h-md:space-y-8 overflow-y-auto">
     <div class="flex flex-col gap-2">
-      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">Game version</span>
+      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">{$t('left-bar.game-version')}</span>
       <Select
         name="installsCombobox"
         class="w-full h-8"
@@ -133,11 +135,11 @@
               {$installsMetadata[item].info?.branch}{$installsMetadata[item].info?.type !== common.InstallType.WINDOWS ? ' - DS' : ''}
               ({$installsMetadata[item]?.info?.launcher})
             {:else if $installsMetadata[item]?.state === ficsitcli.InstallState.LOADING}
-              Loading...
+              {$t('loading')}
             {:else if $installsMetadata[item]?.state === ficsitcli.InstallState.INVALID}
-              Invalid
+              {$t('invalid')}
             {:else}
-              Unknown
+              {$t('unknown')}
             {/if}
           </span>
         </svelte:fragment>
@@ -148,11 +150,11 @@
               {#if $installsMetadata[item]?.state === ficsitcli.InstallState.VALID}
                 <!-- nothing extra -->
               {:else if $installsMetadata[item]?.state === ficsitcli.InstallState.LOADING}
-                <span>Status: Loading...</span>
+                <span>{$t('left-bar.install-status.loading')}</span>
               {:else if $installsMetadata[item]?.state === ficsitcli.InstallState.INVALID}
-                <span>Status: SMM cannot manage this install</span>
+                <span>{$t('left-bar.install-status.invalid')}</span>
               {:else}
-                <span>Status: Could not get information about this install</span>
+                <span>{$t('left-bar.install-status.unknown')}</span>
               {/if}
             </div>
           </Tooltip>
@@ -176,15 +178,15 @@
             {$installsMetadata[item].info?.branch}{$installsMetadata[item].info?.type !== common.InstallType.WINDOWS ? ' - DS' : ''}
             ({$installsMetadata[item]?.info?.launcher})
           {:else if $installsMetadata[item]?.state === ficsitcli.InstallState.LOADING}
-            Loading...
+            {$t('loading')}
           {:else if $installsMetadata[item]?.state === ficsitcli.InstallState.INVALID}
-            Invalid
+            {$t('invalid')}
           {:else}
-            Unknown
+            {$t('unknown')}
           {/if}
         </svelte:fragment>
       </Select>
-      
+
       <div class="flex w-full">
         <div class="btn-group bg-surface-200-700-token w-full text-xl">
           <button
@@ -194,7 +196,7 @@
             on:click={() => setModsEnabled(false)}
           >
             <span>
-              Mods off
+              {$t('left-bar.mods-off')}
             </span>
             <div class="grow"/>
             <SvgIcon
@@ -207,7 +209,7 @@
             disabled={!$canModify}
             on:click={() => setModsEnabled(true)}>
             <span>
-              Mods on
+              {$t('left-bar.mods-on')}
             </span>
             <div class="grow"/>
             <SvgIcon
@@ -218,8 +220,8 @@
       </div>
     </div>
     <div class="flex flex-col gap-2">
-      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">Profile</span>
-      
+      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">{$t('left-bar.profile')}</span>
+
       <Select
         name="profileCombobox"
         class="w-full h-8"
@@ -246,14 +248,14 @@
           </button>
         </svelte:fragment>
       </Select>
-  
+
       <div class="flex w-full gap-1">
         <button
           class="btn w-1/3 bg-surface-200-700-token px-4 h-8 text-sm"
           disabled={!$canModify}
           on:click={() => modalStore.trigger({ type:'component', component: 'addProfile' })}>
           <span>
-            Add
+            {$t('add')}
           </span>
           <div class="grow"/>
           <SvgIcon
@@ -265,7 +267,7 @@
           disabled={!$canModify}
           on:click={() => modalStore.trigger({ type:'component', component: { ref: RenameProfile, props: { profile: $selectedProfile } } })}>
           <span>
-            Rename
+            {$t('rename')}
           </span>
           <div class="grow"/>
           <SvgIcon
@@ -277,7 +279,7 @@
           disabled={!$canModify || $profiles.length === 1}
           on:click={() => modalStore.trigger({ type:'component', component: { ref: DeleteProfile, props: { profile: $selectedProfile } } })}>
           <span>
-            Delete
+            {$t('delete')}
           </span>
           <div class="grow"/>
           <SvgIcon
@@ -292,7 +294,7 @@
           on:click={() => modalStore.trigger({ type: 'component', component: 'importProfile' })}
         >
           <span>
-            Import
+            {$t('import')}
           </span>
           <div class="grow"/>
           <SvgIcon
@@ -305,7 +307,7 @@
           on:click={() => exportCurrentProfile()}
         >
           <span>
-            Export
+            {$t('export')}
           </span>
           <div class="grow"/>
           <SvgIcon
@@ -315,15 +317,15 @@
       </div>
     </div>
     <div class="flex flex-col gap-2">
-      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">Updates</span>
+      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">{$t('left-bar.updates')}</span>
       <Updates />
     </div>
     <div class="flex flex-col gap-2">
-      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">Other</span>
+      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">{$t('left-bar.other')}</span>
       <button
         class="btn px-4 h-8 w-full text-sm bg-surface-200-700-token"
         on:click={() => modalStore.trigger({ type: 'component', component: 'serverManager' })}>
-        <span>Manage Servers</span>
+        <span>{$t('left-bar.manage-servers')}</span>
         <div class="grow" />
         <SvgIcon
           class="h-5 w-5"
@@ -335,7 +337,7 @@
         on:click={() => BrowserOpenURL('https://docs.ficsit.app/satisfactory-modding/latest/ForUsers/SatisfactoryModManager.html')}
       >
         <span>
-          Help
+          {$t('left-bar.help')}
         </span>
         <div class="grow"/>
         <SvgIcon
@@ -344,12 +346,12 @@
       </button>
     </div>
     <div class="flex flex-col gap-2">
-      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">Links</span>
+      <span class="pl-4 sticky top-0 z-[1] bg-surface-50-900-token">{$t('left-bar.links.title')}</span>
       <button
         class="btn w-full bg-surface-200-700-token px-4 h-8 text-sm"
         on:click={() => BrowserOpenURL($siteURL)}>
         <span>
-          ficsit.app (Mod Repository)
+          {$t('left-bar.links.ficsit')}
         </span>
         <div class="grow" />
         <SvgIcon
@@ -360,7 +362,7 @@
         class="btn w-full bg-surface-200-700-token px-4 h-8 text-sm"
         on:click={() => BrowserOpenURL('https://discord.gg/xkVJ73E')}>
         <span>
-          Satisfactory Modding Discord
+          {$t('left-bar.links.discord')}
         </span>
         <div class="grow" />
         <SvgIcon
@@ -371,7 +373,7 @@
         class="btn w-full bg-surface-200-700-token px-4 h-8 text-sm"
         on:click={() => BrowserOpenURL('https://github.com/satisfactorymodding/SatisfactoryModManager')} >
         <span>
-          SMM GitHub
+          {$t('left-bar.links.github')}
         </span>
         <div class="grow" />
         <SvgIcon

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { getTranslate } from '@tolgee/svelte';
+
   import { newProfileName } from './addProfile';
 
   import { AddProfile } from '$lib/generated/wailsjs/go/ficsitcli/ficsitCLI';
@@ -9,6 +11,7 @@
   export let parent: { onClose: () => void };
 
   const modalStore = getModalStore();
+  const { t } = getTranslate();
 
   async function finishAddProfile() {
     try {
@@ -24,7 +27,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -32,14 +35,14 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[40rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    Add profile
+    {$t('profile-modal.add-profile')}
   </header>
   <section class="p-4 grow">
     <label class="label w-full">
-      <span>Profile name</span>
+      <span>{$t('profile-modal.profile-name')}</span>
       <input
         class="input px-4 py-2"
-        placeholder="My New Profile"
+        placeholder={$t('profile-modal.placeholder-new')}
         type="text"
         bind:value={$newProfileName}/>
     </label>
@@ -48,13 +51,13 @@
     <button
       class="btn"
       on:click={parent.onClose}>
-      Cancel
+      {$t('cancel')}
     </button>
     <button
       class="btn text-primary-600"
       disabled={!newProfileName}
       on:click={finishAddProfile}>
-      Add
+      {$t('add')}
     </button>
   </footer>
 </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslate } from '@tolgee/svelte';
   import { getContextClient, queryStore } from '@urql/svelte';
 
   import { GetModSummaryDocument } from '$lib/generated';
@@ -13,6 +14,7 @@
   export let modReference: string;
   export let version: string | undefined;
 
+  const { t } = getTranslate();
   const client = getContextClient();
 
   $: modQuery = queryStore(
@@ -47,7 +49,7 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[48rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    Install mod
+    {$t('mod-item.install-mod')}
   </header>
   <section class="p-4 overflow-y-auto">
     {#if mod}
@@ -55,18 +57,18 @@
         <div class="grow">
           <p>{mod.name}</p>
           {#if version}
-            <p>Version {version}</p>
+            <p>{$t('mod-item.version.version')} {version}</p>
           {:else}
-            <p>Latest version</p>
+            <p>{$t('mod-item.version.latest')}</p>
           {/if}
           <p>{mod.short_description}</p>
         </div>
         <img class="logo h-24 w-24 mx-2" alt="{mod.name} Logo" src={renderedLogo} />
       </div>
     {:else if $modQuery.fetching}
-      <p>Loading...</p>
+      <p>{$t('loading')}</p>
     {:else if $modQuery.error}
-      <p>Error loading mod details</p>
+      <p>{$t('mod-item.load-details-error')}</p>
     {/if}
   </section>
   <footer class="card-footer">
@@ -75,17 +77,13 @@
       disabled={isInstalled || queued}
       on:click={install}>
       {#if queued}
-        In queue
+        {$t('mod-item.queued.in-queue')}
       {:else if isInstalled}
-        Already installed
+        {$t('mod-item.already-installed')}
       {:else}
-        Install
+        {$t('install')}
       {/if}
     </button>
-    <button
-      class="btn"
-      on:click={parent.onClose}>
-      Cancel
-    </button>
+    <button class="btn" on:click={parent.onClose}>{$t('cancel')}</button>
   </footer>
 </div>

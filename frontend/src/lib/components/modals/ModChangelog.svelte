@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslate } from '@tolgee/svelte';
   import { getContextClient, queryStore } from '@urql/svelte';
   import { gt, lte } from 'semver';
 
@@ -11,6 +12,7 @@
   export let mod: string;
   export let versionRange: string | { from: string, to: string };
 
+  const { t } = getTranslate();
   const client = getContextClient();
 
   $: modVersionChangelogStore = queryStore({
@@ -39,7 +41,7 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[48rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    {modData?.name ?? 'Loading...'} Changelog
+    {modData?.name ?? $t('loading')} {$t('mod-item.changelogs')}
   </header>
   <section class="p-4 overflow-y-auto">
     {#each changelogs as changelog}
@@ -49,10 +51,6 @@
     {/each}
   </section>
   <footer class="card-footer">
-    <button
-      class="btn"
-      on:click={parent.onClose}>
-      Close
-    </button>
+    <button class="btn" on:click={parent.onClose}>{$t('close')}</button>
   </footer>
 </div>

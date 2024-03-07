@@ -1,8 +1,12 @@
 <script lang="ts">
+  import { getTranslate } from '@tolgee/svelte';
+
   import { newCacheLocation } from './cacheLocationPicker';
 
   import { OpenDirectoryDialog } from '$lib/generated/wailsjs/go/app/app';
   import { cacheDir } from '$lib/store/settingsStore';
+
+  const { t } = getTranslate();
 
   export let parent: { onClose: () => void };
 
@@ -27,7 +31,7 @@
       } else if (typeof e === 'string') {
         cacheError = e;
       } else {
-        cacheError = 'Unknown error';
+        cacheError = $t('error.unknown-error');
       }
     } finally {
       fileDialogOpen = false;
@@ -47,7 +51,7 @@
       } else if (typeof e === 'string') {
         cacheError = e;
       } else {
-        cacheError = 'Unknown error';
+        cacheError = $t('error.unknown-error');
       }
     } finally {
       cacheMoveInProgress = false;
@@ -65,7 +69,7 @@
       } else if (typeof e === 'string') {
         cacheError = e;
       } else {
-        cacheError = 'Unknown error';
+        cacheError = $t('error.unknown-error');
       }
     } finally {
       cacheMoveInProgress = false;
@@ -75,11 +79,11 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[60rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    Change download cache location
+    {$t('cache-location-modal.title')}
   </header>
   <section class="p-4 grow">
     <label class="label">
-      <span>Cache location</span>
+      <span>{$t('cache-location-modal.cache-location')}</span>
       <div class="flex items-baseline">
         <div class="grow">
           <input
@@ -100,14 +104,14 @@
           class="btn mr-4 shrink-0 text-primary-600"
           disabled={cacheMoveInProgress}
           on:click={() => resetCacheLocation()}>
-          <span>Reset to default</span>
+          <span>{$t('cache-location-modal.reset-to-default')}</span>
           <div class="grow" />
         </button>
         <button
           class="btn shrink-0 text-primary-600"
           disabled={cacheMoveInProgress}
           on:click={() => setCacheLocation()}>
-          <span>Save and move</span>
+          <span>{$t('cache-location-modal.save-and-move')}</span>
           <div class="grow" />
         </button>
       </div>
@@ -118,7 +122,7 @@
       class="btn text-primary-600 variant-ringed"
       disabled={cacheMoveInProgress}
       on:click={parent.onClose}>
-      <span>Close</span>
+      <span>{$t('cancel')}</span>
     </button>
   </footer>
 </div>

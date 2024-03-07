@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { getTranslate } from '@tolgee/svelte';
+
   import { profileFilepath, profileName } from './importProfile';
 
   import { OpenFileDialog } from '$lib/generated/wailsjs/go/app/app';
@@ -6,6 +8,8 @@
   import type { ficsitcli } from '$lib/generated/wailsjs/go/models';
   import { profiles, selectedInstallMetadata } from '$lib/store/ficsitCLIStore';
   import { error } from '$lib/store/generalStore';
+
+  const { t } = getTranslate();
 
   export let parent: { onClose: () => void };
 
@@ -29,7 +33,7 @@
       $profileFilepath = await OpenFileDialog({
         filters: [
           {
-            displayName: 'SMM Profile (*.smmprofile)',
+            displayName: $t('profile-modal.smm-profile') + ' (*.smmprofile)',
             pattern: '*.smmprofile',
           },
         ],
@@ -46,7 +50,7 @@
       } else if (typeof e === 'string') {
         pickerError = e;
       } else {
-        pickerError = 'Unknown error';
+        pickerError = $t('error.unknown-error');
       }
     }
     fileDialogOpen = false;
@@ -64,7 +68,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -72,32 +76,30 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[40rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    Import profile
+    {$t('profile-modal.import-profile')}
   </header>
   <section class="p-4 grow space-y-2">
     <label class="label w-full">
-      <span>Profile name</span>
+      <span>{$t('profile-modal.profile-name')}</span>
       <input
         class="input px-4 py-2"
-        placeholder="My New Profile"
+        placeholder={$t('profile-modal.placeholder-new')}
         type="text"
         bind:value={$profileName}/>
     </label>
     <label class="label w-full">
-      <span>Profile file</span>
+      <span>{$t('profile-modal.profile-file')}</span>
       <input
         class="input px-4 py-2 hover:!cursor-pointer"
         class:input-error={!!pickerError || newProfileNameExists}
         readonly
-        type="text" 
+        type="text"
         value={$profileFilepath}
         on:click={() => pickImportProfileFile()}
       />
       {#if importProfileMetadata}
         {#if importProfileMetadata.gameVersion < ($selectedInstallMetadata?.info?.version ?? 0)}
-          <p>
-            This profile was created with a newer version of the game. It may not be compatible with this version.
-          </p>
+          <p>{$t('profile-modal.profile-from-newer')}</p>
         {/if}
       {/if}
       {#if pickerError}
@@ -111,13 +113,13 @@
     <button
       class="btn"
       on:click={parent.onClose}>
-      Cancel
+      {$t('cancel')}
     </button>
     <button
       class="btn text-primary-600"
       disabled={!$profileName || !$profileFilepath || !!pickerError || newProfileNameExists}
       on:click={finishImportProfile}>
-      Import
+      {$t('import')}
     </button>
   </footer>
 </div>

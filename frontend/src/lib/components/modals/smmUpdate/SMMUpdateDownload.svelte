@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ProgressBar } from '@skeletonlabs/skeleton';
+  import { getTranslate } from '@tolgee/svelte';
 
   import Markdown from '$lib/components/Markdown.svelte';
   import { getModalStore } from '$lib/skeletonExtensions';
@@ -9,6 +10,7 @@
   export let parent: { onClose: () => void };
 
   const modalStore = getModalStore();
+  const { t } = getTranslate();
 
   function filterChangelog(changelog: string) {
     const changelogStart = changelog.indexOf('## Changelog');
@@ -32,17 +34,17 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[48rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    SMM Update Available - {$smmUpdate?.newVersion}
+    {$t('updates.smm-available')} - {$smmUpdate?.newVersion}
   </header>
   {#if !$smmUpdateReady && $smmUpdateProgress}
     <section class="p-4">
-      <div>Downloading in background</div>
+      <div>{$t('updates.background-download')}</div>
       <ProgressBar
         class="h-4 w-full"
         max={$smmUpdateProgress.total}
         meter="bg-primary-600"
         value={$smmUpdateProgress.total ? $smmUpdateProgress.downloaded : undefined}/>
-      <div class="text-base">Downloading update: {bytesToAppropriate($smmUpdateProgress.downloaded)} / {bytesToAppropriate($smmUpdateProgress.total)}, {bytesToAppropriate($smmUpdateProgress.speed)}/s, ETA {eta >= 0 ? secondsToAppropriate(eta) : 'N/A'}</div>
+      <div class="text-base">{$t('updates.downloading')}: {bytesToAppropriate($smmUpdateProgress.downloaded)} / {bytesToAppropriate($smmUpdateProgress.total)}, {bytesToAppropriate($smmUpdateProgress.speed)}/s, {$t('updates.eta')} {eta >= 0 ? secondsToAppropriate(eta) : 'N/A'}</div>
     </section>
   {/if}
   <section class="p-4 overflow-y-auto">
@@ -56,7 +58,7 @@
     <button
       class="btn"
       on:click={parent.onClose}>
-      Cancel
+      {$t('cancel')}
     </button>
   </footer>
 </div>

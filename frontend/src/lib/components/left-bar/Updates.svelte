@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mdiCheckCircle, mdiSync } from '@mdi/js';
+  import { getTranslate } from '@tolgee/svelte';
 
   import SvgIcon from '$lib/components/SVGIcon.svelte';
   import { getModalStore } from '$lib/skeletonExtensions';
@@ -8,6 +9,7 @@
   import { CheckForUpdates as CheckForSMMUpdates } from '$wailsjs/go/autoupdate/autoUpdate';
 
   const modalStore = getModalStore();
+  const { t } = getTranslate();
 
   function checkForAllUpdates() {
     checkForUpdates().catch(console.error);
@@ -44,11 +46,11 @@
   on:click={() => showUpdateDialog()}>
   <span>
     {#if $smmUpdate}
-      SMM update available
+      {$t('updates.smm-available')}
     {:else if $unignoredUpdates.length > 0}
-      {$unignoredUpdates.length} mod updates available
+      {$t('updates.mods-available', { n: $unignoredUpdates.length })}
     {:else}
-      No mod/SMM updates right now
+      {$t('updates.no-available')}
     {/if}
   </span>
   <div class="grow" />
@@ -63,9 +65,9 @@
   on:click={checkForAllUpdates}>
   <span>
     {#if $updateCheckInProgress}
-      Checking for updates...
+      {$t('updates.checking-for-updates')}
     {:else}
-      Check for updates
+      {$t('updates.check-for-updates')}
     {/if}
   </span>
   <div class="grow" />

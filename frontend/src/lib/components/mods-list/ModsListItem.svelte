@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiArchiveCheck, mdiDownload, mdiEye, mdiLinkLock, mdiPause, mdiPauseCircle, mdiPlay, mdiPlayCircle, mdiStar, mdiStarMinus, mdiStarOutline, mdiStarPlus, mdiSync, mdiTagMultiple, mdiTrashCan, mdiTrayFull, mdiTrayMinus } from '@mdi/js';
   import { ProgressBar } from '@skeletonlabs/skeleton';
+  import { getTranslate } from '@tolgee/svelte';
   import { getContextClient } from '@urql/svelte';
   import { createEventDispatcher } from 'svelte';
 
@@ -24,6 +25,7 @@
 
   export let mod: PartialMod;
 
+  const { t } = getTranslate();
   const client = getContextClient();
 
   const dispatch = createEventDispatcher();
@@ -55,14 +57,14 @@
       return {
         icon: mdiLinkLock,
         iconHover: mdiLinkLock,
-        tooltip: 'This mod is installed a dependency of another mod. It cannot be installed or removed on its own.',
+        tooltip: $t('mod-item.mod-is-dependency'),
       };
     }
     if (inProgress) {
       return {
         icon: mdiSync,
         iconHover: mdiSync,
-        tooltip: 'Wait for the current operation to complete.',
+        tooltip: $t('mod-item.wait-for-operation'),
       };
     }
     if (queuedInstall) {
@@ -70,9 +72,7 @@
         icon: mdiTrayFull,
         iconHover: mdiTrayMinus,
         iconHoverClass: 'text-red-500',
-        tooltip: isInstalled ?
-          'This mod is queued to be uninstalled. Click to cancel the operation.' :
-            'This mod is queued to be installed. Click to cancel the operation.',
+        tooltip: isInstalled ? $t('mod-item.queued.uninstall') : $t('mod-item.queued.install'),
       };
     }
 
@@ -80,7 +80,7 @@
       icon: mdiDownload,
       iconHover: mdiDownload,
       iconHoverClass: 'text-primary-600',
-      tooltip: 'Click to install this mod.',
+      tooltip: $t('mod-item.click-to-install'),
     };
     if (isInstalled) {
       display = {
@@ -88,23 +88,23 @@
         iconClass: 'text-primary-600',
         iconHover: mdiTrashCan,
         iconHoverClass: 'text-red-500',
-        tooltip: 'This mod is installed on this profile. Click to uninstall it.',
+        tooltip: $t('mod-item.uninstall-mod'),
       };
     } else if (compatibility.state !== CompatibilityState.Works) {
       if (installButtonDisabled) {
-        display.tooltip = 'You can\'t install this mod. Reason:';
+        display.tooltip = $t('mod-item.cant-install-mod');
       } else {
-        display.tooltip = 'There are problems reported with this mod, but you can try to install it anyways. Details:';
+        display.tooltip = $t('mod-item.try-to-install-mod');
       }
       if (compatibility.note) {
         display.tooltipHtml = '<br/>' + compatibility.note;
       } else {
         // TODO compatibility.note should always be non-null here, what should our fallback text be if it's not?
-        display.tooltip += ' (None specified)';
+        display.tooltip += $t('compatibility.no-further-notes');
       }
     }
     if (queued) {
-      display.tooltip = 'This mod is already queued for another operation.';
+      display.tooltip = $t('mod-item.queued.operation');
       delete display.tooltipHtml;
     }
     return display;
@@ -116,9 +116,7 @@
         icon: mdiTrayFull,
         iconHover: mdiTrayMinus,
         iconHoverClass: 'text-red-500',
-        tooltip: isEnabled ?
-          'This mod is queued to be Disabled. Click to cancel the operation.' :
-            'This mod is queued to be Enabled. Click to cancel the operation.',
+        tooltip: isEnabled ? $t('mod-item.queued.disable') : $t('mod-item.queued.enable'),
       };
     }
 
@@ -126,17 +124,17 @@
       icon: mdiPause,
       iconHover: mdiPlayCircle,
       iconHoverClass: 'text-primary-600',
-      tooltip: 'This mod is Disabled on this profile. Click to Enable it.',
+      tooltip: $t('mod-item.click-to-enable'),
     };
     if (isEnabled) {
       display = {
         icon: mdiPlay,
         iconHover: mdiPauseCircle,
-        tooltip: 'This mod is Enabled on this profile. Click to Disable it, which prevents it from loading when you start the game, but still keeps it a part of this profile.',
+        tooltip: $t('mod-item.click-to-disable'),
       };
     }
     if (queued) {
-      display.tooltip = 'This mod is already queued for another operation.';
+      display.tooltip = $t('mod-item.queued.operation');
     }
     return display;
   })();
@@ -153,15 +151,15 @@
         icon: mdiStar,
         iconHover: mdiStarMinus,
         iconClass: 'text-warning-500',
-        tooltip: 'This mod is Favorited. Click to remove it from your favorites.',
+        tooltip: $t('mod-item.remove-from-favorites'),
       };
     }
     return {
       icon: mdiStarOutline,
       iconHover: mdiStarPlus,
       iconHoverClass: 'text-warning-500',
-      tooltip: 'Click to add this mod to your Favorites.',
-      tooltipHtml: 'Having a mod Favorited is unrelated to whether or not it\'s installed - it\'s a way to keep track of a mod for later regardless of what Profile you have selected.',
+      tooltip: $t('mod-item.add-to-favorites'),
+      tooltipHtml: $t('mod-item.add-to-favorites-note'),
     };
   })();
 
@@ -171,15 +169,15 @@
     if(info) {
       if(!('offline' in mod) && !('missing' in mod)) {
         if(mod.hidden && !isDependency) {
-          compatibility = { state: CompatibilityState.Broken, note: 'This mod was hidden by the author.', source: 'reported' };
+          compatibility = { state: CompatibilityState.Broken, note: $t('mod-item.mod-is-hidden'), source: 'reported' };
         } else {
           getCompatibility(mod.mod_reference, info.branch, info.version, installTypeToTargetName(info.type), client).then((result) => {
             if (result.source === 'reported') {
               compatibility = {
                 state: result.state,
                 note: result.note 
-                  ? `This mod has been reported as ${result.state} on this game version.<br>${result.note}` 
-                  : `This mod has been reported as ${result.state} on this game version. (No further notes provided)`,
+                  ? `${$t('compatibility.description.' + result.state)}<br>${result.note}` 
+                  : `${$t('compatibility.description.' + result.state)}${$t('compatibility.no-further-notes')}`,
                 source: 'reported',
               };
             } else {
@@ -188,7 +186,7 @@
           });
         }
       } else if('missing' in mod) {
-        compatibility = { state: CompatibilityState.Broken, note: 'This mod is no longer available on ficsit.app. You may want to remove it.', source: 'version' };
+        compatibility = { state: CompatibilityState.Broken, note: $t('mod-item.mod-is-missing'), source: 'version' };
       } else {
         getVersionCompatibility(mod.mod_reference, info.version, client).then((result) => {
           compatibility = {
@@ -245,7 +243,7 @@
       } else if (typeof e === 'string') {
         $error = e;
       } else {
-        $error = 'Unknown error';
+        $error = $t('error.unknown-error');
       }
     }
   }
@@ -314,7 +312,7 @@
               <span>#{tag.name}</span>
             {/each}
           {:else}
-            <span>(none available)</span>
+            <span>{$t('mod-item.no-tags')}</span>
           {/if}
         </div>
         <div class="text-sm w-full">
@@ -374,7 +372,7 @@
 
 <Tooltip disabled={!(isInstalled && !isEnabled) && compatibility.state === CompatibilityState.Works} {popupId}>
   {#if isInstalled && !isEnabled}
-    This mod is Disabled. Click the pause icon to Enable it. 
+    {$t('mod-item.disabled-message')}
   {:else if compatibility.state !== CompatibilityState.Works}
     <Markdown class="[&>p]:my-0" markdown={compatibility.note ?? ''}/>
   {/if}

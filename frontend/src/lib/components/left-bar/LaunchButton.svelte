@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mdiOpenInNew, mdiTrayFull } from '@mdi/js';
+  import { getTranslate } from '@tolgee/svelte';
   import { getContextClient } from '@urql/svelte';
 
   import Tooltip from '../Tooltip.svelte';
@@ -14,6 +15,8 @@
   import { type CompatibilityWithSource, getCompatibility } from '$lib/utils/modCompatibility';
   import { installTypeToTargetName } from '$lib/wailsTypesExtensions';
   import { LaunchGame } from '$wailsjs/go/ficsitcli/ficsitCLI';
+
+  const { t } = getTranslate();
 
   $: isInstallLaunchable = !!$selectedInstallMetadata?.info?.launchPath;
 
@@ -118,7 +121,7 @@
       class="btn h-8 w-full text-sm bg-error-500"
       on:click={() => startQueue()}
     >
-      <span>Apply {$queuedMods.length} change{$queuedMods.length !== 1 ? 's' : ''}</span>
+      <span>{$t('launch-button.apply-changes', { n: $queuedMods.length })}</span>
       <div class="grow" />
       <SvgIcon
         class="h-5 w-5"
@@ -129,7 +132,7 @@
       class="btn h-8 w-full text-sm bg-surface-200-700-token"
       disabled
     >
-      <span>SMM can't launch this install</span>
+      <span>{$t('launch-button.cant-launch-install')}</span>
       <div class="grow" />
     </button>
   {:else if $launchButton === 'normal' || $isGameRunning || $isLaunchingGame}
@@ -141,7 +144,7 @@
       disabled={!!$progress || $isGameRunning || $isLaunchingGame}
       on:click={() => launchGame()}
     >
-      <span>Play Satisfactory</span>
+      <span>{$t('launch-button.play')}</span>
       <div class="grow" />
       <SvgIcon
         class="h-5 w-5"
@@ -212,49 +215,41 @@
 </center>
 <Tooltip class="!mt-0" {popupId}>
   {#if versionIncompatible.length > 0 || versionPossiblyCompatible.length > 0 || reportedIncompatible.length > 0 || reportedPossiblyCompatible.length > 0}
-    <span>You have:</span>
+    <span>{$t('launch-button.you-have')}</span>
     <ul class="list-disc pl-5">
       {#if versionIncompatible.length > 0}
         <li>
-          <span>
-            {versionIncompatible.length} incompatible mod{versionIncompatible.length > 1 ? 's' : ''} which will either not load or crash your game
-          </span>
+          <span>{$t('launch-button.incompatible-mods-warn', { n: versionIncompatible.length })}</span>
         </li>
       {/if}
       {#if reportedIncompatible.length > 0}
         <li>
-          <span>
-            {reportedIncompatible.length} mod{reportedIncompatible.length > 1 ? 's' : ''} that {reportedIncompatible.length > 1 ? 'are' : 'is'} reported as Broken on this game version. Read the mod{reportedIncompatible.length > 1 ? 's\'' : '\'s'} description or compatibility notes for more information.
-          </span>
+          <span>{$t('launch-button.reported-broken-warn', { n: reportedIncompatible.length })}</span>
         </li>
       {/if}
       {#if versionPossiblyCompatible.length > 0}
         <li>
-          <span>
-            {versionPossiblyCompatible.length} mod{versionPossiblyCompatible.length > 1 ? 's' : ''} that {versionPossiblyCompatible.length > 1 ? 'are' : 'is'} likely incompatible with your game
-          </span>
+          <span>{$t('launch-button.possibly-compatible-warn', { n: versionPossiblyCompatible.length })}</span>
         </li>
       {/if}
       {#if reportedPossiblyCompatible.length > 0}
         <li>
-          <span>
-            {reportedPossiblyCompatible.length} mod{reportedPossiblyCompatible.length > 1 ? 's' : ''} that {reportedPossiblyCompatible.length > 1 ? 'are' : 'is'} reported as Damaged on this game version. Read the mod{reportedPossiblyCompatible.length > 1 ? 's\'' : '\'s'} description or compatibility notes for more information.
-          </span>
+          <span>{$t('launch-button.reported-damaged-warn', { n: reportedPossiblyCompatible.length })}</span>
         </li>
       {/if}
     </ul>
-    <span>Are you sure you want to launch?</span>
+    <span>{$t('launch-button.confirm-launch')}</span>
   {:else if areOperationsQueued}
-    <span>Changes have not yet been made to your mod files. Click the button above to apply the changes you have queued.<br/><br/>(You're in Queue "Start manually" mode)</span>
+    <span>{$t('launch-button.operation-queued')}<br/><br/>{$t('launch-button.manual-queue-warn')}</span>
   {:else if $isGameRunning}
-    <span>Your game launcher is reporting that the game is already running (or still in the process of closing).</span>
+    <span>{$t('launch-button.game-running')}</span>
   {:else if $isLaunchingGame}
-    <span>Launch in progress...</span>
+    <span>{$t('launch-button.launch-in-progress')}</span>
   {:else if !!$progress}
-    <span>An operation is already in progress.</span>
+    <span>{$t('launch-button.operation-in-progress')}</span>
   {:else if !isInstallLaunchable}
-    <span>The Mod Manager is not capable of launching this install type, but it will still manage the mod files for you. Launch Satisfactory using your usual game launcher.</span>
+    <span>{$t('launch-button.not-capable-to-launch')}</span>
   {:else}
-    <span>You're ready to rumble!<br/><br/>Note: The Mod Manager has already finished installing the mod files for you. You could launch the game using your usual game launcher and mods would still be loaded.</span>
+    <span>{$t('launch-button.ready-to-rumble')}<br/><br/>{$t('launch-button.ready-note')}</span>
   {/if}
 </Tooltip>

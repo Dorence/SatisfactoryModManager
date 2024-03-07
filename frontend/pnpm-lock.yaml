@@ -20,6 +20,9 @@ dependencies:
   '@tailwindcss/container-queries':
     specifier: ^0.1.1
     version: 0.1.1(tailwindcss@3.3.6)
+  '@tolgee/svelte':
+    specifier: ^5.19.6
+    version: 5.19.6(svelte@4.2.8)
   '@urql/exchange-graphcache':
     specifier: ^6.4.0
     version: 6.4.0(graphql@16.8.1)
@@ -2496,6 +2499,25 @@ packages:
       tailwindcss: '>=3.2.0'
     dependencies:
       tailwindcss: 3.3.6
+    dev: false
+
+  /@tolgee/core@5.19.6:
+    resolution: {integrity: sha512-q9we8/IdhS9JYs3toDXP1tR0aJADinJctqRmh0ggSTzFWkO9rJFdd6yFTHnMeac9/KljsGAwQ0xKF3Gs8JOs4Q==}
+    dev: false
+
+  /@tolgee/svelte@5.19.6(svelte@4.2.8):
+    resolution: {integrity: sha512-V+LTxOVu8bBv49rltIg30QysUVZ5UQFlvvFRb6cJrQoMvLCHPeCavjc00m3bvz2/qcd/92F+CF14T0aB5LKbeQ==}
+    peerDependencies:
+      svelte: ^3.29.0 || ^4.0.0
+    dependencies:
+      '@tolgee/web': 5.19.6
+      svelte: 4.2.8
+    dev: false
+
+  /@tolgee/web@5.19.6:
+    resolution: {integrity: sha512-3Z/ZXzf/2gLSs72tIdonYwQCUNtnCdZohUD0M/Ls0zIacHJGuTptIjjrN4ObjcmmFrgVTAcPV11anTNg18Havw==}
+    dependencies:
+      '@tolgee/core': 5.19.6
     dev: false
 
   /@tsconfig/svelte@5.0.2:

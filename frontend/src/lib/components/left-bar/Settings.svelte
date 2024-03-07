@@ -1,18 +1,20 @@
 <script lang="ts">
   import { mdiBug, mdiCheck, mdiCheckboxBlankOutline, mdiCheckboxMarkedOutline, mdiChevronRight, mdiClipboard, mdiCog, mdiDownload, mdiFolderEdit, mdiTune } from '@mdi/js';
   import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
+  import { getTranslate } from '@tolgee/svelte';
   import { getContextClient } from '@urql/svelte';
 
   import SvgIcon from '$lib/components/SVGIcon.svelte';
   import { GetModNameDocument } from '$lib/generated';
   import { type PopupSettings, getModalStore, popup } from '$lib/skeletonExtensions';
   import { lockfileMods, manifestMods } from '$lib/store/ficsitCLIStore';
-  import { debug, konami, launchButton, offline, queueAutoStart, startView, updateCheckMode, version } from '$lib/store/settingsStore';
+  import { debug, konami, language, launchButton, offline, queueAutoStart, startView, updateCheckMode, version } from '$lib/store/settingsStore';
   import type { LaunchButtonType, ViewType } from '$lib/wailsTypesExtensions';
   import { GenerateDebugInfo } from '$wailsjs/go/app/app';
   import { OfflineGetMod } from '$wailsjs/go/ficsitcli/ficsitCLI';
 
   const modalStore = getModalStore();
+  const { t } = getTranslate();
 
   const settingsMenu = {
     event: 'click',
@@ -37,11 +39,35 @@
   let views: { id: ViewType, name: string }[] = [
     {
       id: 'compact',
-      name: 'Compact',
+      name: 'smm-settings.start-view.compact',
     },
     {
       id: 'expanded',
-      name: 'Expanded',
+      name: 'smm-settings.start-view.expanded',
+    },
+  ];
+
+  let viewDisplay: string;
+  $: viewDisplay = $t(views.find((m) => m.id === $startView)?.name as string);
+
+  const languageMenu = {
+    event: 'click',
+    target: 'language-menu',
+    middleware: {
+      offset: 4,
+    },
+    placement: 'right-start',
+    closeQuery: '[data-popup="language-menu"] .listbox-item',
+  } satisfies PopupSettings;
+
+  let languages: { id: string, name: string }[] = [
+    {
+      id: 'en',
+      name: '🇺🇳 English',
+    },
+    {
+      id: 'zh-Hans',
+      name: '🇨🇳 简体中文',
     },
   ];
 
@@ -58,17 +84,20 @@
   let updateCheckModes: { id: 'launch'|'exit'|'ask', name: string }[] = [
     {
       id: 'launch',
-      name: 'On start',
+      name: 'smm-settings.update-check.on-start',
     },
     {
       id: 'exit',
-      name: 'On exit',
+      name: 'smm-settings.update-check.on-exit',
     },
     {
       id: 'ask',
-      name: 'Ask when found',
+      name: 'smm-settings.update-check.ask-when-found',
     },
   ];
+
+  let updateCheckDisplay: string;
+  $: updateCheckDisplay = $t(updateCheckModes.find((m) => m.id === $updateCheckMode)?.name as string);
 
   const queueModeMenu = {
     event: 'click',
@@ -83,13 +112,16 @@
   let queueModes: { id: boolean, name: string }[] = [
     {
       id: true,
-      name: 'Start immediately',
+      name: 'smm-settings.queue.immediately',
     },
     {
       id: false,
-      name: 'Start manually',
+      name: 'smm-settings.queue.manually',
     },
   ];
+
+  let queueModeDisplay: string;
+  $: queueModeDisplay = $t(queueModes.find((m) => m.id === $queueAutoStart)?.name as string);
 
   const launchButtonMenu = {
     event: 'click',
@@ -164,7 +196,7 @@
   <div class="w-full h-8" use:popup={settingsMenu}>
     <button class="btn px-4 h-full w-full text-sm bg-surface-200-700-token"
     >
-      <span>Mod Manager Settings</span>
+      <span>{$t('smm-settings.title')}</span>
       <div class="grow" />
       <SvgIcon
         class="h-5 w-5"
@@ -172,6 +204,32 @@
     </button>
   </div>
   <!-- #if gets executed before lower elements are added to the dom, so we have the submenus before to ensure they exist when use:popup is called-->
+  <div class="card shadow-xl w-48 z-10 duration-0 overflow-y-auto" data-popup="language-menu">
+    <!-- 
+    Skeleton's popup close function waits for the tranistion duration...
+    before actually triggering the transition...
+    So we'll just not have a transition...
+    -->
+    <ul class="menu">
+      <ListBox class="w-full" rounded="rounded-none" spacing="space-y-0">
+        {#each languages as item}
+          <ListBoxItem
+            name="language"
+            class="bg-surface-50-900-token"
+            active=""
+            value={item.id}
+            bind:group={$language}>
+            {item.name}
+            <span slot="trail" class="h-5 w-5 block">
+              {#if $language === item.id}
+                <SvgIcon class="h-full w-full" icon={mdiCheck}/>
+              {/if}
+            </span>
+          </ListBoxItem>
+        {/each}
+      </ListBox>
+    </ul>
+  </div>
   <div class="card shadow-xl w-48 z-10 duration-0 overflow-y-auto" data-popup="update-check-mode-menu">
     <!-- 
     Skeleton's popup close function waits for the tranistion duration...
@@ -187,7 +245,7 @@
             active=""
             value={item.id}
             bind:group={$updateCheckMode}>
-            {item.name}
+            {$t(item.name)}
             <span slot="trail" class="h-5 w-5 block">
               {#if $updateCheckMode === item.id}
                 <SvgIcon class="h-full w-full" icon={mdiCheck}/>
@@ -213,7 +271,7 @@
             active=""
             value={item.id}
             bind:group={$queueAutoStart}>
-            {item.name}
+            {$t(item.name)}
             <span slot="trail" class="h-5 w-5 block">
               {#if $queueAutoStart === item.id}
                 <SvgIcon class="h-full w-full" icon={mdiCheck}/>
@@ -239,7 +297,7 @@
             active=""
             value={item.id}
             bind:group={$startView}>
-            {item.name}
+            {$t(item.name)}
             <span slot="trail" class="h-5 w-5 block">
               {#if $startView === item.id}
                 <SvgIcon class="h-full w-full" icon={mdiCheck}/>
@@ -287,13 +345,13 @@
     <ul class="menu">
       <li class="section-header">
         <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiBug}/></span>
-        <span class="flex-auto">Debug</span>
+        <span class="flex-auto">{$t('smm-settings.debug')}</span>
       </li>
       <hr class="divider" />
       <li>
         <button on:click={() => GenerateDebugInfo()}>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Generate debug info</span>
+          <span class="flex-auto">{$t('generate-debug-info')}</span>
           <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiDownload}/></span>
         </button>
       </li>
@@ -301,7 +359,7 @@
       <li>
         <button on:click={() => copyModList()}>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Copy mod list</span>
+          <span class="flex-auto">{$t('smm-settings.copy-mod-list')}</span>
           <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiClipboard}/></span>
         </button>
       </li>
@@ -309,7 +367,7 @@
       <li>
         <button on:click={() => $debug = !$debug}>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">SMM debug logging</span>
+          <span class="flex-auto">{$t('smm-settings.debug-logging')}</span>
           <span class="h-5 w-5">
             <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={$debug ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}/></span>
           </span>
@@ -318,14 +376,25 @@
       <hr class="divider" />
       <li class="section-header">
         <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiCog}/></span>
-        <span class="flex-auto">Settings</span>
+        <span class="flex-auto">{$t('smm-settings.settings')}</span>
+      </li>
+      <hr class="divider" />
+      <li data-noclose use:popup={languageMenu}>
+        <button>
+          <span class="h-5 w-5"/>
+          <span class="flex-auto">{$t('smm-settings.language')}</span>
+          <span>{languages.find((m) => m.id === $language)?.name}</span>
+          <span class="h-5 w-5">
+            <SvgIcon class="h-full w-full" icon={mdiChevronRight}/>
+          </span>
+        </button>
       </li>
       <hr class="divider" />
       <li data-noclose use:popup={updateCheckModeMenu}>
         <button>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Update check</span>
-          <span>{updateCheckModes.find((m) => m.id === $updateCheckMode)?.name}</span>
+          <span class="flex-auto">{$t('smm-settings.update-check.title')}</span>
+          <span>{updateCheckDisplay}</span>
           <span class="h-5 w-5">
             <SvgIcon class="h-full w-full" icon={mdiChevronRight}/>
           </span>
@@ -335,8 +404,8 @@
       <li data-noclose use:popup={queueModeMenu}>
         <button>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Queue</span>
-          <span>{queueModes.find((m) => m.id === $queueAutoStart)?.name}</span>
+          <span class="flex-auto">{$t('smm-settings.queue.title')}</span>
+          <span>{queueModeDisplay}</span>
           <span class="h-5 w-5">
             <SvgIcon class="h-full w-full" icon={mdiChevronRight}/>
           </span>
@@ -346,8 +415,8 @@
       <li data-noclose use:popup={startViewMenu}>
         <button>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Start view</span>
-          <span>{views.find((m) => m.id === $startView)?.name}</span>
+          <span class="flex-auto">{$t('smm-settings.start-view.title')}</span>
+          <span>{viewDisplay}</span>
           <span class="h-5 w-5">
             <SvgIcon class="h-full w-full" icon={mdiChevronRight}/>
           </span>
@@ -357,7 +426,7 @@
       <li>
         <button on:click={() => modalStore.trigger({ type: 'component', component: 'cacheLocationPicker' })}>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Change cache location</span>
+          <span class="flex-auto">{$t('smm-settings.change-cache-location')}</span>
           <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiFolderEdit}/></span>
         </button>
       </li>
@@ -365,7 +434,7 @@
       <li>
         <button on:click={() => $offline = !$offline}>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Go {$offline ? 'online' : 'offline'}</span>
+          <span class="flex-auto">{$offline ? $t('offline-mode.go-online') : $t('offline-mode.go-offline')}</span>
           <span class="h-5 w-5"/>
         </button>
       </li>
@@ -373,13 +442,13 @@
         <hr class="divider" />
         <li class="section-header">
           <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiCog}/></span>
-          <span class="flex-auto">Secret settings</span>
+          <span class="flex-auto">{$t('smm-settings.secret-settings')}</span>
         </li>
         <hr class="divider" />
         <li data-noclose use:popup={launchButtonMenu}>
           <button>
             <span class="h-5 w-5"/>
-            <span class="flex-auto">Launch button</span>
+            <span class="flex-auto">{$t('smm-settings.launch-button')}</span>
             <span>{launchButtons.find((l) => l.id === $launchButton)?.name ?? ''}</span>
             <span class="h-5 w-5">
               <SvgIcon class="h-full w-full" icon={mdiChevronRight}/>

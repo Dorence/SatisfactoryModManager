@@ -1,9 +1,13 @@
+import { get } from 'svelte/store';
+
 import { binding, bindingTwoWay, bindingTwoWayNoExcept } from './wailsStoreBindings';
 
 import { GetVersion } from '$lib/generated/wailsjs/go/app/app';
 import type { LaunchButtonType, ViewType } from '$lib/wailsTypesExtensions';
 import { GetOffline, SetOffline } from '$wailsjs/go/ficsitcli/ficsitCLI';
-import { GetCacheDir, GetDebug, GetIgnoredUpdates, GetKonami, GetLaunchButton, GetQueueAutoStart, GetStartView, GetUpdateCheckMode, GetViewedAnnouncements, SetCacheDir, SetDebug, SetKonami, SetLaunchButton, SetQueueAutoStart, SetStartView, SetUpdateCheckMode } from '$wailsjs/go/settings/settings';
+import { GetCacheDir, GetDebug, GetIgnoredUpdates, GetKonami, GetLanguage, GetLaunchButton, GetQueueAutoStart, GetStartView, GetUpdateCheckMode, GetViewedAnnouncements, SetCacheDir, SetDebug, SetKonami, SetLanguage, SetLaunchButton, SetQueueAutoStart, SetStartView, SetUpdateCheckMode } from '$wailsjs/go/settings/settings';
+
+export const language = bindingTwoWayNoExcept<string>('en', { initialGet: GetLanguage }, { updateFunction: async (l) => { if (get(language) != l) { await SetLanguage(l); } } });
 
 export const startView = bindingTwoWayNoExcept<ViewType | null>(null, { initialGet: GetStartView }, { updateFunction: SetStartView });
 

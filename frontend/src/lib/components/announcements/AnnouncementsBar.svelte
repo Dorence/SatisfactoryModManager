@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslate } from '@tolgee/svelte';
   import { getContextClient, queryStore } from '@urql/svelte';
   import Carousel from 'svelte-carousel';
 
@@ -8,8 +9,9 @@
   import { type PopupSettings, popup } from '$lib/skeletonExtensions';
   import { offline, viewedAnnouncements } from '$lib/store/settingsStore';
   import { SetAnnouncementViewed } from '$wailsjs/go/settings/settings';
-  
+
   const client = getContextClient();
+  const { t } = getTranslate();
 
   $: healthcheckStore = queryStore({
     query: SmrHealthcheckDocument,
@@ -51,14 +53,14 @@
 
   const offlineAnnouncement: ViewableAnnouncement = {
     id: '__offline__',
-    message: 'You are currently offline. Some features may be unavailable. (To reconnect, use Mod Manager Settings > Go Online)',
+    message: $t('offline-mode.offline-announcement'),
     importance: AnnouncementImportance.Info,
     viewable: false,
   };
 
   const healthcheckFailAnnouncement: ViewableAnnouncement = {
     id: '__healthcheck__',
-    message: 'Could not reach ficsit.app. Check your internet connection or consider using the offline mode. (Mod Manager Settings > Go Offline)',
+    message: $t('offline-mode.health-check-announcement'),
     importance: AnnouncementImportance.Warning,
     viewable: false,
   };
@@ -137,7 +139,7 @@
           role="button"
           tabindex="0"
           on:click={goOnline}
-          on:keypress={goOnline}>Go Online</span>
+          on:keypress={goOnline}>{$t('offline-mode.go-online')}</span>
       </div>
     </Announcement>
   </div>
@@ -164,7 +166,7 @@
                     role="button"
                     tabindex="0"
                     on:click={goOffline}
-                    on:keypress={goOffline}>Go Offline</span>
+                    on:keypress={goOffline}>{$t('offline-mode.go-offline')}</span>
                 </div>
               {:else}
                 {announcement.message}

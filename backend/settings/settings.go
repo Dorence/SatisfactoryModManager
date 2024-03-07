@@ -41,7 +41,8 @@ type settings struct {
 	UnexpandedSize utils.Size `json:"unexpandedSize,omitempty"`
 	ExpandedSize   utils.Size `json:"expandedSize,omitempty"`
 
-	StartView View `json:"startView,omitempty"`
+	Language  string `json:"Language,omitempty"`
+	StartView View   `json:"startView,omitempty"`
 
 	FavoriteMods []string        `json:"favoriteMods,omitempty"`
 	ModFilters   SavedModFilters `json:"modFilters,omitempty"`
@@ -68,6 +69,7 @@ var Settings = &settings{
 	UnexpandedSize: utils.UnexpandedDefault,
 	ExpandedSize:   utils.ExpandedDefault,
 
+	Language:  "en",
 	StartView: ViewCompact,
 
 	FavoriteMods: []string{},
@@ -150,6 +152,16 @@ func (s *settings) SetModFiltersFilter(filter string) {
 
 func (s *settings) emitFavoriteMods() {
 	wailsRuntime.EventsEmit(common.AppContext, "favoriteMods", s.FavoriteMods)
+}
+
+func (s *settings) GetLanguage() string {
+	return s.Language
+}
+
+func (s *settings) SetLanguage(value string) {
+	slog.Info("changing langage", slog.String("value", value))
+	s.Language = value
+	_ = SaveSettings()
 }
 
 func (s *settings) GetStartView() View {

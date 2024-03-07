@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import { ProgressBar } from '@skeletonlabs/skeleton';
+  import { getTranslate } from '@tolgee/svelte';
 
   import { getModalStore } from '$lib/skeletonExtensions';
   import { progress, selectedInstallMetadata, selectedProfile } from '$lib/store/ficsitCLIStore';
@@ -21,6 +22,7 @@
   $: parent;
 
   const modalStore = getModalStore();
+  const { t } = getTranslate();
 
   $: if(!$progress) {
     // We cannot use parent.onClose because we might not be the top modal
@@ -44,15 +46,15 @@
   $: title = (() => {
     switch ($progress?.item) {
       case '__select_install__':
-        return `Selecting install ${$selectedInstallMetadata?.info?.branch} (${$selectedInstallMetadata?.info?.launcher}) - CL${$selectedInstallMetadata?.info?.version}`;
+        return `${$t('progress.title.select-install')} ${$selectedInstallMetadata?.info?.branch} (${$selectedInstallMetadata?.info?.launcher}) - CL${$selectedInstallMetadata?.info?.version}`;
       case '__select_profile__':
-        return `Selecting profile ${$selectedProfile}`;
+        return `${$t('progress.title.select-profile')} ${$selectedProfile}`;
       case '__toggle_mods__':
-        return 'Toggling mods';
+        return $t('progress.title.toggle-mods');
       case '__update__':
-        return 'Updating mods';
+        return $t('progress.title.update');
       case '__import_profile__':
-        return `Importing profile ${$selectedProfile}`;
+        return `${$t('progress.title.import-profile')} ${$selectedProfile}`;
     }
     return '';
   })();
@@ -64,7 +66,7 @@
   </header>
   <section class="p-4">
     {#if $progress}
-      <p>{$progress.message}</p>
+      <p>{$t('progress.message.' + $progress.message, $progress.message)}</p>
       <ProgressBar
         class="h-4 w-full"
         max={1}
