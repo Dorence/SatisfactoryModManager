@@ -169,7 +169,7 @@
       return {
         friendlyName: modName,
         modReference,
-        version: $lockfileMods[modReference].version,
+        version: $lockfileMods[modReference]?.version,
       };
     }));
     // Sort by Friendly Name
