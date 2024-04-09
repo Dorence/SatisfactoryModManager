@@ -20,4 +20,3 @@ export const modalRegistry = {
   smmUpdateDownload: { ref: SMMUpdateDownload } as ModalComponent,
   smmUpdateReady: { ref: SMMUpdateReady } as ModalComponent,
 };
-							

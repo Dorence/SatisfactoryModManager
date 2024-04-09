@@ -8,11 +8,11 @@
   "frontend:dev:serverUrl": "http://localhost:3000",
   "wailsjsdir": "frontend/src/lib/generated",
   "author": {
-    "name": "mircearoata",
-    "email": "mircearoatapalade@gmail.com"
+    "name": "visualmod",
+    "email": "visualmod@qq.com"
   },
   "info": {
-    "productVersion": "3.0.0-beta.2.1",
+    "productVersion": "0.2.0-zh",
     "fileAssociations": [
       {
         "ext": "smmprofile",

@@ -26,13 +26,20 @@ import (
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/settings"
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/utils"
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/websocket"
+
+	"regexp"
+	"strings"
+
+	"github.com/brahma-adshonor/gohook"
+	ficsitCliCache "github.com/satisfactorymodding/ficsit-cli/cli/cache"
+	ficsitCliUtils "github.com/satisfactorymodding/ficsit-cli/utils"
 )
 
 //go:embed all:frontend/build
 var assets embed.FS
 
 var (
-	version = "dev"
+	version = "0.2.0-zh"
 	commit  = "unknown"
 	date    = "unknown"
 
@@ -51,6 +58,8 @@ func main() {
 		_ = dialog.Error("Failed to load settings: %s", err.Error())
 		os.Exit(1)
 	}
+
+	zhmod()
 
 	if settings.Settings.CacheDir != "" {
 		err = settings.ValidateCacheDir(settings.Settings.CacheDir)
@@ -219,4 +228,56 @@ func init() {
 	// logging
 
 	viper.Set("log-file", filepath.Join(smmCacheDir, "logs", "SatisfactoryModManager.log"))
+}
+
+func zhmod() {
+	err := gohook.Hook(ficsitCliCache.DownloadOrCache, PatchDownloadOrCache, TrampDownloadOrCache)
+	if err != nil {
+		slog.Error("failed to patch", slog.Any("error", err))
+	}
+
+	if settings.Settings.Proxy != "" {
+		proxy := settings.Settings.Proxy
+		os.Unsetenv("no_proxy")
+		os.Setenv("http_proxy", proxy)
+		os.Setenv("https_proxy", proxy)
+		slog.Info("set", slog.String("http_proxy", proxy))
+	}
+
+	slog.Info("zhmod done")
+}
+
+var reSml = regexp.MustCompile(`^https://github\.com/satisfactorymodding/SatisfactoryModLoader/releases/download\/(?P<version>v[\d\.]+)/SML(?P<arch>-\w+)?\.zip$`)
+
+func PatchDownloadOrCache(cacheKey string, hash string, url string, updates chan<- ficsitCliUtils.GenericProgress, downloadSemaphore chan int) (*os.File, int64, error) {
+	match := reSml.FindStringSubmatch(url)
+	if match != nil {
+		slog.Info("SML caught", slog.String("url", url))
+		if settings.Settings.SmlLinkReplacer != "" {
+			url = settings.Settings.SmlLinkReplacer // new URL
+			for i, name := range reSml.SubexpNames() {
+				if i > 0 && name != "" {
+					var group string
+					if i < len(match) {
+						group = match[i]
+					} else {
+						group = "" // default empty string
+					}
+					// replace <version> <arch> ...
+					url = strings.ReplaceAll(url, "<"+name+">", group)
+				}
+			}
+			slog.Info("replaced SML", slog.String("url", url))
+		}
+	}
+	return TrampDownloadOrCache(cacheKey, hash, url, updates, downloadSemaphore) // original call
+}
+
+func TrampDownloadOrCache(cacheKey string, hash string, url string, updates chan<- ficsitCliUtils.GenericProgress, downloadSemaphore chan int) (*os.File, int64, error) {
+	slog.Info("DUMMY NOT CALLED0")
+	slog.Info("DUMMY NOT CALLED1")
+	slog.Info("DUMMY NOT CALLED2")
+	slog.Info("DUMMY NOT CALLED3")
+	slog.Info("DUMMY NOT CALLED4")
+	return nil, 0, nil
 }

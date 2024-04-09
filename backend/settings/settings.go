@@ -3,6 +3,7 @@ package settings
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -41,7 +42,7 @@ type settings struct {
 	UnexpandedSize utils.Size `json:"unexpandedSize,omitempty"`
 	ExpandedSize   utils.Size `json:"expandedSize,omitempty"`
 
-	Language  string `json:"Language,omitempty"`
+	Language  string `json:"language,omitempty"` // zh
 	StartView View   `json:"startView,omitempty"`
 
 	FavoriteMods []string        `json:"favoriteMods,omitempty"`
@@ -59,6 +60,9 @@ type settings struct {
 
 	CacheDir string `json:"cacheDir,omitempty"`
 
+	Proxy           string `json:"proxy,omitempty"`           // zh
+	SmlLinkReplacer string `json:"smlLinkReplacer,omitempty"` // zh
+
 	Debug bool `json:"debug,omitempty"`
 }
 
@@ -69,7 +73,7 @@ var Settings = &settings{
 	UnexpandedSize: utils.UnexpandedDefault,
 	ExpandedSize:   utils.ExpandedDefault,
 
-	Language:  "en",
+	Language:  "en", // zh
 	StartView: ViewCompact,
 
 	FavoriteMods: []string{},
@@ -285,6 +289,33 @@ func (s *settings) GetCacheDir() string {
 	return viper.GetString("cache-dir")
 }
 
+func (s *settings) GetSmlLinkReplacer() string {
+	return s.SmlLinkReplacer
+}
+
+func (s *settings) SetSmlLinkReplacer(value string) {
+	slog.Info("changing SmlLinkReplacer", slog.String("value", value))
+	s.SmlLinkReplacer = value
+	_ = SaveSettings()
+}
+
+func (s *settings) GetProxy() string {
+	return s.Proxy
+}
+
+func (s *settings) SetProxy(value string) {
+	slog.Info("changing Proxy", slog.String("value", value))
+	s.Proxy = value
+	if s.Proxy != "" {
+		os.Unsetenv("no_proxy")
+		os.Setenv("http_proxy", s.Proxy)
+		os.Setenv("https_proxy", s.Proxy)
+	} else {
+		os.Setenv("no_proxy", "")
+	}
+	_ = SaveSettings()
+}
+
 func ValidateCacheDir(dir string) error {
 	stat, err := os.Stat(dir)
 	if err != nil {
@@ -362,24 +393,44 @@ func moveCacheData(oldCacheDir, newDir string) error {
 	return nil
 }
 
-var settingsFileName = "settings.json"
+var settingsFileName = "settings-zh.json"
+var settingsFileName2 = "settings.json"
 
 func LoadSettings() error {
 	settingsFilePath := filepath.Join(viper.GetString("smm-local-dir"), settingsFileName)
+	settingsFilePath2 := filepath.Join(viper.GetString("smm-local-dir"), settingsFileName2)
 
 	_, err := os.Stat(settingsFilePath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return fmt.Errorf("failed to stat settings file: %w", err)
-		}
+	if os.IsNotExist(err) {
+		_, err := os.Stat(settingsFilePath2)
+		if os.IsNotExist(err) {
+			// both not exist, create new
+			err = SaveSettings()
+			if err != nil {
+				return fmt.Errorf("failed to save default settings: %w", err)
+			}
+		} else {
+			// old exists, copy old
+			sourceFile, err := os.Open(settingsFilePath2)
+			if err != nil {
+				return fmt.Errorf("Unable to open source file: %w", err)
+			}
+			defer sourceFile.Close()
+			destinationFile, err := os.Create(settingsFilePath)
+			if err != nil {
+				return fmt.Errorf("Unable to create destination file: %w", err)
 
-		err = SaveSettings()
-		if err != nil {
-			return fmt.Errorf("failed to save default settings: %w", err)
+			}
+			defer destinationFile.Close()
+			_, err = io.Copy(destinationFile, sourceFile)
+			if err != nil {
+				return fmt.Errorf("Failed to copy file: %w", err)
+			}
+			slog.Warn("Settings file copied successfully")
 		}
 	}
 
-	settingsFile, err := os.ReadFile(filepath.Join(viper.GetString("smm-local-dir"), settingsFileName))
+	settingsFile, err := os.ReadFile(settingsFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to read settings: %w", err)
 	}

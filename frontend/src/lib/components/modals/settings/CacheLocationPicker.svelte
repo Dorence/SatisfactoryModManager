@@ -4,7 +4,7 @@
   import { newCacheLocation } from './cacheLocationPicker';
 
   import { OpenDirectoryDialog } from '$lib/generated/wailsjs/go/app/app';
-  import { cacheDir } from '$lib/store/settingsStore';
+  import { cacheDir, proxy, smlLinkReplacer } from '$lib/store/settingsStore';
 
   const { t } = getTranslate();
 
@@ -75,6 +75,9 @@
       cacheMoveInProgress = false;
     }
   }
+
+  let newSmlReplacer: string = $smlLinkReplacer ?? "";
+  let newProxy: string = $proxy ?? "";
 </script>
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[60rem] card flex flex-col gap-2">
@@ -116,13 +119,53 @@
         </button>
       </div>
     </label>
+
+    <label class="label">
+      <span>{$t('cache-location-modal.sml-replacer')}</span>
+      <div class="flex items-baseline">
+        <div class="grow">
+          <input
+            class="input px-4 py-2 hover:!cursor-pointer"
+            type="text"
+            bind:value={newSmlReplacer}
+          />
+        </div>
+        <button
+          class="btn shrink-0 text-primary-600"
+          on:click={() => {$smlLinkReplacer = newSmlReplacer}}
+        >
+          <span>{$t('apply')}</span>
+          <div class="grow" />
+        </button>
+      </div>
+    </label>
+
+    <label class="label">
+      <span>{$t('cache-location-modal.proxy')}</span>
+      <div class="flex items-baseline">
+        <div class="grow">
+          <input
+            class="input px-4 py-2 hover:!cursor-pointer"
+            type="text"
+            bind:value={newProxy}
+          />
+        </div>
+        <button
+          class="btn shrink-0 text-primary-600"
+          on:click={() => {$proxy = newProxy}}
+        >
+          <span>{$t('apply')}</span>
+          <div class="grow" />
+        </button>
+      </div>
+    </label>
   </section>
   <footer class="card-footer">
     <button
       class="btn text-primary-600 variant-ringed"
       disabled={cacheMoveInProgress}
       on:click={parent.onClose}>
-      <span>{$t('cancel')}</span>
+      <span>{$t('close')}</span>
     </button>
   </footer>
 </div>

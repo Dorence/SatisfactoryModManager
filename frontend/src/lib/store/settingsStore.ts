@@ -5,7 +5,7 @@ import { binding, bindingTwoWay, bindingTwoWayNoExcept } from './wailsStoreBindi
 import { GetVersion } from '$lib/generated/wailsjs/go/app/app';
 import type { LaunchButtonType, ViewType } from '$lib/wailsTypesExtensions';
 import { GetOffline, SetOffline } from '$wailsjs/go/ficsitcli/ficsitCLI';
-import { GetCacheDir, GetDebug, GetIgnoredUpdates, GetKonami, GetLanguage, GetLaunchButton, GetQueueAutoStart, GetStartView, GetUpdateCheckMode, GetViewedAnnouncements, SetCacheDir, SetDebug, SetKonami, SetLanguage, SetLaunchButton, SetQueueAutoStart, SetStartView, SetUpdateCheckMode } from '$wailsjs/go/settings/settings';
+import { GetCacheDir, GetDebug, GetIgnoredUpdates, GetKonami, GetLanguage, GetLaunchButton, GetQueueAutoStart, GetStartView, GetUpdateCheckMode, GetViewedAnnouncements, SetCacheDir, SetDebug, SetKonami, SetLanguage, SetLaunchButton, SetQueueAutoStart, SetStartView, SetUpdateCheckMode, GetSmlLinkReplacer, SetSmlLinkReplacer, GetProxy, SetProxy } from '$wailsjs/go/settings/settings';
 
 export const language = bindingTwoWayNoExcept<string>('en', { initialGet: GetLanguage }, { updateFunction: async (l) => { if (get(language) != l) { await SetLanguage(l); } } });
 
@@ -26,6 +26,10 @@ export const viewedAnnouncements = binding<string[]>([], { initialGet: GetViewed
 export const ignoredUpdates = binding<Record<string, string[]>>({}, { initialGet: GetIgnoredUpdates, updateEvent: 'ignoredUpdates' });
 
 export const cacheDir = bindingTwoWay<string, null>(null, { initialGet: GetCacheDir, updateEvent: 'cacheDir' }, { updateFunction: SetCacheDir });
+
+export const smlLinkReplacer = bindingTwoWayNoExcept<string>('', { initialGet: GetSmlLinkReplacer }, { updateFunction: SetSmlLinkReplacer });
+
+export const proxy = bindingTwoWayNoExcept<string>('', { initialGet: GetProxy }, { updateFunction: SetProxy });
 
 export const version = binding<string>('0.0.0', { initialGet: GetVersion });
 

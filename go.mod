@@ -5,6 +5,7 @@ go 1.22
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/andygrunwald/vdf v1.1.0
+	github.com/brahma-adshonor/gohook v1.1.9
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kbinani/screenshot v0.0.0-20230812210009-b87d31814237
 	github.com/lmittmann/tint v1.0.3
@@ -84,6 +85,7 @@ require (
 	github.com/zishang520/engine.io-go-parser v1.2.3 // indirect
 	github.com/zishang520/socket.io-go-parser v1.0.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/exp v0.0.0-20231214170342-aacd6d4b4611 // indirect
 	golang.org/x/net v0.20.0 // indirect

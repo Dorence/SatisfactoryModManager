@@ -1,5 +1,6 @@
 {
   "add": "添加",
+  "apply": "应用",
   "arch": {
     "LinuxServer": "Linux 服务器",
     "WindowsClient": "Windows 客户端",
@@ -7,8 +8,10 @@
   },
   "cache-location-modal": {
     "cache-location": "缓存路径",
+    "proxy": "代理（更改后需要重启）",
     "reset-to-default": "重置为默认",
     "save-and-move": "保存并移动",
+    "sml-replacer": "SML 下载路径",
     "title": "更改下载缓存路径"
   },
   "cancel": "取消",
@@ -231,7 +234,7 @@
     }
   },
   "smm-settings": {
-    "change-cache-location": "更改缓存路径",
+    "change-cache-location": "更改下载设置",
     "copy-mod-list": "复制模组列表",
     "debug": "调试",
     "debug-logging": "记录 SMM 调试日志",

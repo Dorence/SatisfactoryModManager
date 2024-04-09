@@ -4,7 +4,7 @@ import { get } from 'svelte/store';
 
 import { type Compatibility, CompatibilityState, GetModVersionTargetsDocument, ModReportedCompatibilityDocument, ModVersionsCompatibilityDocument, SmlVersionsCompatibilityDocument, TargetName } from '$lib/generated';
 import { common } from '$lib/generated/wailsjs/go/models';
-import { offline } from '$lib/store/settingsStore';
+import { offline, smlLinkReplacer } from '$lib/store/settingsStore';
 import { OfflineGetMod, OfflineGetSMLVersions } from '$wailsjs/go/ficsitcli/ficsitCLI';
 
 export interface CompatibilityWithSource extends Compatibility {
@@ -67,7 +67,18 @@ async function getSMLVersions(urqlClient: Client): Promise<SMLVersion[] | undefi
   
   const smlVersionsQuery = await urqlClient.query(SmlVersionsCompatibilityDocument, {}).toPromise();
 
-  return smlVersionsQuery.data?.getSMLVersions.sml_versions;
+  return rewriteSMLLinks(smlVersionsQuery.data?.getSMLVersions.sml_versions);
+}
+
+function rewriteSMLLinks(sml_versions: SMLVersion[] | undefined): SMLVersion[] | undefined {
+  if(sml_versions === undefined) {
+    return sml_versions;
+  }
+  if(smlLinkReplacer) {
+    for(let v of sml_versions) {
+      console.log(v);
+    }
+  }
 }
 
 interface ModVersion {

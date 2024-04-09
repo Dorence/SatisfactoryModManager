@@ -3,7 +3,7 @@
   import { type PopupSettings, popup } from '@skeletonlabs/skeleton';
   import { getTranslate } from '@tolgee/svelte';
   import _ from 'lodash';
-  import { siDiscord, siGithub } from 'simple-icons/icons';
+  import { siDiscord, siGitee, siGithub } from 'simple-icons/icons';
 
   import Tooltip from '../Tooltip.svelte';
   import DeleteProfile from '../modals/profiles/DeleteProfile.svelte';
@@ -379,6 +379,15 @@
         <SvgIcon
           class="h-5 w-5"
           icon={siGithub.path} />
+      </button>
+      <button
+        class="btn w-full bg-surface-200-700-token px-4 h-8 text-sm"
+        on:click={() => BrowserOpenURL('https://visualmod.gitee.io/satisfactory-mod/')} >
+        <span>汉化版 v0.2.0 by Visualmod</span>
+        <div class="grow" />
+        <SvgIcon
+          class="h-5 w-5"
+          icon={siGitee.path} />
       </button>
     </div>
   </div>

@@ -1,5 +1,6 @@
 {
   "add": "Add",
+  "apply": "Apply",
   "arch": {
     "LinuxServer": "Linux Server",
     "WindowsClient": "Windows Client",
@@ -7,8 +8,10 @@
   },
   "cache-location-modal": {
     "cache-location": "Cache location",
+    "proxy": "Proxy (Restart required)",
     "reset-to-default": "Reset to default",
     "save-and-move": "Save and move",
+    "sml-replacer": "SML link replacer",
     "title": "Change download cache location"
   },
   "cancel": "Cancel",
@@ -231,7 +234,7 @@
     }
   },
   "smm-settings": {
-    "change-cache-location": "Change cache location",
+    "change-cache-location": "Download settings",
     "copy-mod-list": "Copy mod list",
     "debug": "Debug",
     "debug-logging": "SMM debug logging",
