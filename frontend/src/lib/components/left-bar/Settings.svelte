@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiBug, mdiCheck, mdiCheckboxBlankOutline, mdiCheckboxMarkedOutline, mdiChevronRight, mdiClipboard, mdiCog, mdiDownload, mdiFolderEdit, mdiTune } from '@mdi/js';
+  import { mdiBug, mdiCheck, mdiCheckboxBlankOutline, mdiCheckboxMarkedOutline, mdiChevronRight, mdiClipboard, mdiCog, mdiDownload, mdiFolderEdit, mdiLanConnect, mdiTune } from '@mdi/js';
   import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
   import { getTranslate } from '@tolgee/svelte';
   import { getContextClient } from '@urql/svelte';
@@ -428,6 +428,14 @@
           <span class="h-5 w-5"/>
           <span class="flex-auto">{$t('smm-settings.change-cache-location')}</span>
           <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiFolderEdit}/></span>
+        </button>
+      </li>
+      <hr class="divider" />
+      <li>
+        <button on:click={() => modalStore.trigger({ type: 'component', component: 'proxy' })}>
+          <span class="h-5 w-5"/>
+          <span class="flex-auto">Set proxy</span>
+          <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiLanConnect}/></span>
         </button>
       </li>
       <hr class="divider" />

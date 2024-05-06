@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"log/slog"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,7 +15,6 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend"
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/app"
@@ -25,6 +25,7 @@ import (
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/logging"
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/settings"
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/utils"
+	"github.com/satisfactorymodding/SatisfactoryModManager/backend/wailsextras"
 	"github.com/satisfactorymodding/SatisfactoryModManager/backend/websocket"
 )
 
@@ -61,6 +62,24 @@ func main() {
 		}
 	}
 
+	if settings.Settings.Proxy != "" {
+		// webkit honors these env vars, even if they are an empty string,
+		// so we must ensure they are valid
+		_, err := url.Parse(settings.Settings.Proxy)
+		if err != nil {
+			slog.Error("skipping setting proxy, invalid URL", slog.Any("error", err))
+		} else {
+			err = os.Setenv("HTTP_PROXY", settings.Settings.Proxy)
+			if err != nil {
+				slog.Error("failed to set HTTP_PROXY", slog.Any("error", err))
+			}
+			err = os.Setenv("HTTPS_PROXY", settings.Settings.Proxy)
+			if err != nil {
+				slog.Error("failed to set HTTPS_PROXY", slog.Any("error", err))
+			}
+		}
+	}
+
 	err = ficsitcli.Init()
 	if err != nil {
 		slog.Error("failed to initialize ficsit-cli", slog.Any("error", err))
@@ -71,6 +90,17 @@ func main() {
 	windowStartState := options.Normal
 	if settings.Settings.Maximized {
 		windowStartState = options.Maximised
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "wipe-mods" {
+		includeRemote := len(os.Args) > 2 && os.Args[2] == "remote"
+		err := ficsitcli.FicsitCLI.WipeMods(includeRemote)
+		if err != nil {
+			slog.Error("failed to wipe mods", slog.Any("error", err))
+			_ = dialog.Error("Failed to wipe mods: %s", err.Error())
+			os.Exit(1)
+		}
+		return
 	}
 
 	// Create application with options
@@ -96,7 +126,9 @@ func main() {
 			appCommon.AppContext = ctx
 
 			// Wails doesn't support setting the window position on init, so we do it here
-			loadWindowLocation(ctx)
+			if settings.Settings.WindowPosition != nil {
+				wailsextras.WindowSetPosition(ctx, settings.Settings.WindowPosition.X, settings.Settings.WindowPosition.Y)
+			}
 
 			app.App.WatchWindow() //nolint:contextcheck
 			go websocket.ListenAndServeWebsocket()
@@ -115,12 +147,14 @@ func main() {
 			ficsitcli.FicsitCLI,
 			autoupdate.Updater,
 			settings.Settings,
+			ficsitcli.ServerPicker,
 		},
 		EnumBind: []interface{}{
 			common.AllInstallTypes,
 			common.AllBranches,
 			common.AllLocationTypes,
 			ficsitcli.AllInstallationStates,
+			ficsitcli.AllActionTypes,
 		},
 		Logger: backend.WailsZeroLogLogger{},
 	})
@@ -135,22 +169,13 @@ func main() {
 		slog.Error("failed to apply update on exit", slog.Any("error", err))
 		_ = dialog.Error("Failed to apply update on exit: %s", err.Error())
 	}
-}
 
-func loadWindowLocation(ctx context.Context) {
-	if settings.Settings.WindowPosition != nil {
-		// Setting the window location is relative to the current monitor,
-		// but we save it as absolute position.
-
-		wailsRuntime.WindowSetPosition(ctx, 0, 0)
-
-		// Get the location the window was actually placed at
-		monitorLeft, monitorTop := wailsRuntime.WindowGetPosition(ctx)
-
-		x := settings.Settings.WindowPosition.X - monitorLeft
-		y := settings.Settings.WindowPosition.Y - monitorTop
-
-		wailsRuntime.WindowSetPosition(ctx, x, y)
+	if app.App.Restart && !autoupdate.Updater.HasRestarted() {
+		err := utils.Restart()
+		if err != nil {
+			slog.Error("failed to restart", slog.Any("error", err))
+			_ = dialog.Error("Failed to restart: %s", err.Error())
+		}
 	}
 }
 
@@ -167,14 +192,16 @@ func init() {
 	var baseLocalDir string
 
 	switch runtime.GOOS {
-	case "windows":
-		baseLocalDir = os.Getenv("APPDATA")
 	case "linux":
 		baseLocalDir = filepath.Join(os.Getenv("HOME"), ".local", "share")
 	default:
-		slog.Error("unsupported OS", slog.String("os", runtime.GOOS))
-		_ = dialog.Error("Unsupported OS: %s", runtime.GOOS)
-		os.Exit(1)
+		var err error
+		baseLocalDir, err = os.UserConfigDir()
+		if err != nil {
+			slog.Error("failed to get config dir", slog.Any("error", err))
+			_ = dialog.Error("Failed to get config dir", err.Error())
+			os.Exit(1)
+		}
 	}
 
 	viper.Set("base-local-dir", baseLocalDir)

@@ -13,9 +13,17 @@ import (
 
 var manifests = []string{"appmanifest_526870.acf", "appmanifest_1690800.acf"}
 
-func findInstallationsSteam(steamPath string, launcher string, executable []string) ([]*common.Installation, []error) {
+func FindInstallationsSteam(steamPath string, launcher string, launchPath func(steamApp string) []string, processPath func(path string) string) ([]*common.Installation, []error) {
+	if launchPath == nil {
+		launchPath = func(appName string) []string { return nil }
+	}
+
+	if processPath == nil {
+		processPath = func(path string) string { return path }
+	}
+
 	steamAppsPath := filepath.Join(steamPath, "steamapps")
-	libraryFoldersManifestPath := filepath.Join(steamAppsPath, "libraryfolders.vdf")
+	libraryFoldersManifestPath := processPath(filepath.Join(steamAppsPath, "libraryfolders.vdf"))
 
 	libraryFoldersF, err := os.Open(libraryFoldersManifestPath)
 	if err != nil {
@@ -67,7 +75,7 @@ func findInstallationsSteam(steamPath string, launcher string, executable []stri
 
 	for _, libraryFolder := range libraryFolders {
 		for _, manifest := range manifests {
-			manifestPath := filepath.Join(libraryFolder, "steamapps", manifest)
+			manifestPath := processPath(filepath.Join(libraryFolder, "steamapps", manifest))
 
 			if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
 				continue
@@ -87,11 +95,11 @@ func findInstallationsSteam(steamPath string, launcher string, executable []stri
 			}
 
 			if _, ok := manifest["AppState"]; !ok {
-				findErrors = append(findErrors, fmt.Errorf("Failed to find AppState in manifest %s", manifestPath))
+				findErrors = append(findErrors, fmt.Errorf("failed to find AppState in manifest %s", manifestPath))
 				continue
 			}
 
-			fullInstallationPath := filepath.Join(libraryFolder, "steamapps", "common", manifest["AppState"].(map[string]interface{})["installdir"].(string))
+			fullInstallationPath := processPath(filepath.Join(libraryFolder, "steamapps", "common", manifest["AppState"].(map[string]interface{})["installdir"].(string)))
 
 			installType, version, err := common.GetGameInfo(fullInstallationPath)
 			if err != nil {
@@ -111,21 +119,18 @@ func findInstallationsSteam(steamPath string, launcher string, executable []stri
 				if betakey == "experimental" {
 					branch = common.BranchExperimental
 				} else {
-					findErrors = append(findErrors, fmt.Errorf("Unknown beta key %s", betakey))
+					findErrors = append(findErrors, fmt.Errorf("unknown beta key %s", betakey))
 				}
 			}
 
 			installs = append(installs, &common.Installation{
-				Path:     filepath.Clean(fullInstallationPath),
-				Version:  version,
-				Type:     installType,
-				Location: common.LocationTypeLocal,
-				Branch:   branch,
-				Launcher: launcher,
-				LaunchPath: append(
-					executable,
-					`steam://rungameid/526870`,
-				),
+				Path:       filepath.Clean(fullInstallationPath),
+				Version:    version,
+				Type:       installType,
+				Location:   common.LocationTypeLocal,
+				Branch:     branch,
+				Launcher:   launcher,
+				LaunchPath: launchPath(`steam://rungameid/526870`),
 			})
 		}
 	}

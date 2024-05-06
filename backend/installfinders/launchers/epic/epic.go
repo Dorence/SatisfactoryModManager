@@ -47,7 +47,7 @@ func GetEpicBranch(appName string) (common.GameBranch, error) {
 	}
 }
 
-func findInstallationsEpic(epicManifestsPath string, launcher string, launchPath func(appName string) []string, processPath func(path string) string) ([]*common.Installation, []error) {
+func FindInstallationsEpic(epicManifestsPath string, launcher string, launchPath func(appName string) []string, processPath func(path string) string) ([]*common.Installation, []error) {
 	if launchPath == nil {
 		launchPath = func(appName string) []string { return nil }
 	}
@@ -57,7 +57,7 @@ func findInstallationsEpic(epicManifestsPath string, launcher string, launchPath
 	}
 
 	if _, err := os.Stat(epicManifestsPath); os.IsNotExist(err) {
-		return nil, []error{fmt.Errorf("Epic is not installed")}
+		return nil, []error{fmt.Errorf("epic is not installed")}
 	}
 
 	manifests, err := os.ReadDir(epicManifestsPath)

@@ -3,6 +3,7 @@
   import { getTranslate } from '@tolgee/svelte';
   import _ from 'lodash';
 
+  import RemoteServerPicker from '$lib/components/RemoteServerPicker.svelte';
   import SvgIcon from '$lib/components/SVGIcon.svelte';
   import Select from '$lib/components/Select.svelte';
   import Tooltip from '$lib/components/Tooltip.svelte';
@@ -64,7 +65,17 @@
     return newRemoteType.protocol + authString + '@' + newServerHost + ':' + actualPort + '/' + trimmedPath;
   })();
 
-  $: isValid = (() => {
+  $: baseServerPath = (() => {
+    if (newRemoteType.type === 'local') {
+      return newServerPath;
+    }
+    if (advancedMode) {
+      return newRemoteType.protocol + newServerPath;
+    }
+    return newRemoteType.protocol + authString + '@' + newServerHost + ':' + actualPort;
+  })();
+
+  $: isBaseValid = (() => {
     if (newRemoteType.type === 'local') {
       return newServerPath.length > 0;
     }
@@ -72,6 +83,18 @@
       return newServerPath.length > 0;
     }
     return newServerUsername.length > 0 && newServerHost.length > 0;
+  })();
+
+  let isPathValid = false;
+
+  $: isValid = (() => {
+    if (newRemoteType.type === 'local') {
+      return newServerPath.length > 0;
+    }
+    if (advancedMode) {
+      return newServerPath.length > 0;
+    }
+    return newServerUsername.length > 0 && newServerHost.length > 0 && isPathValid;
   })();
 
   async function addNewRemoteServer() {
@@ -198,8 +221,8 @@
       </table>
     </div>
   </section>
-  <section class="p-4 space-y-4">
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 items-start auto-rows-fr">
+  <section class="p-4 space-y-4 overflow-y-auto">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 items-start auto-rows-[minmax(2.5rem,_max-content)]">
       <Select
         name="newServerProtocol"
         class="col-span-1 h-full"
@@ -249,11 +272,16 @@
             placeholder={$t('server-manager.new-server.path')}
             type="text"
             bind:value={newServerPath}/>
-          <p class="sm:col-start-2 col-span-2">
-            {$t('server-manager.new-server.complete-path')}{fullInstallPath}
-          </p>
+          <div class="sm:col-start-2 col-span-2">
+            <RemoteServerPicker
+              basePath={baseServerPath}
+              disabled={!isBaseValid}
+              bind:path={newServerPath}
+              bind:valid={isPathValid}
+            />
+          </div>
         {/if}
-        <button class="btn sm:col-start-2 col-span-2 text-sm whitespace-break-spaces bg-surface-200-700-token" on:click={() => advancedMode = !advancedMode}>
+        <button class="btn sm:col-start-1 col-span-1 row-start-2 text-sm whitespace-break-spaces bg-surface-200-700-token" on:click={() => advancedMode = !advancedMode}>
           {#if advancedMode}
             {$t('server-manager.new-server.switch-to-simple')}
           {:else}
@@ -266,6 +294,13 @@
           placeholder={$t('server-manager.new-server.local-path')}
           type="text"
           bind:value={newServerPath}/>
+        <div class="sm:col-start-2 col-span-2">
+          <RemoteServerPicker
+            basePath=""
+            bind:path={newServerPath}
+            bind:valid={isPathValid}
+          />
+        </div>
       {/if}
       <button
         class="btn h-full text-sm bg-primary-600 text-secondary-900 col-start-2 sm:col-start-4 row-start-1"

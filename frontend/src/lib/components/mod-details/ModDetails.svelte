@@ -12,6 +12,7 @@
   import Tooltip from '$lib/components/Tooltip.svelte';
   import { CompatibilityState, GetModDetailsDocument } from '$lib/generated';
   import { type PopupSettings, getModalStore, popup } from '$lib/skeletonExtensions';
+  import { addQueuedModAction } from '$lib/store/actionQueue';
   import { canModify, lockfileMods, manifestMods } from '$lib/store/ficsitCLIStore';
   import { error, expandedMod, siteURL } from '$lib/store/generalStore';
   import { search } from '$lib/store/modFiltersStore';
@@ -107,17 +108,15 @@
     if(!mod) {
       return;
     }
-    try {
-      await InstallModVersion(mod.mod_reference, version ?? '>=0.0.0');
-    } catch(e) {
-      if (e instanceof Error) {
-        $error = e.message;
-      } else if (typeof e === 'string') {
-        $error = e;
-      } else {
-        $error = $t('error.unknown-error');
-      }
-    }
+    
+    const modReference = mod.mod_reference;
+    const action = async () => InstallModVersion(modReference, version ?? '>=0.0.0').catch((e) => $error = e);
+    const actionName = 'install-version';
+    return addQueuedModAction(
+      modReference,
+      actionName,
+      action,
+    );
   }
 
   function close() {
