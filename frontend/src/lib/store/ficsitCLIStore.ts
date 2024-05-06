@@ -74,20 +74,20 @@ export async function checkForUpdates() {
 setInterval(() => checkForUpdates().catch(console.error), 1000 * 60 * 5); // Check for updates every 5 minutes
 
 export const progressTitle = derived(progress, ($progress) => {
-  if (!$progress) return '';
+  if (!$progress) return undefined;
   switch ($progress.action) {
     case ficsitcli.Action.SELECT_INSTALL: {
       const install = get(installsMetadata)[$progress.item.name];
-      return `Selecting install ${install?.info?.branch} (${install?.info?.launcher}) - CL${install?.info?.version}`;
+      return { key: 'progress.title.select-install', extraMessage: `${install?.info?.branch} (${install?.info?.launcher}) - CL${install?.info?.version}` };
     }
     case ficsitcli.Action.SELECT_PROFILE:
-      return `Selecting profile ${$progress.item.name}`;
+      return { key: 'progress.title.select-profile', extraMessage: $progress.item.name };
     case ficsitcli.Action.TOGGLE_MODS:
-      return `Turning mods ${$progress.item.name === 'true' ? 'on' : 'off'}`;
+      return { key: $progress.item.name === 'true' ? 'progress.title.turn-mod-on' : 'progress.title.turn-mod-off', extraMessage: '' };
     case ficsitcli.Action.UPDATE:
-      return 'Updating mods';
+      return { key: 'progress.title.update-mods', extraMessage: '' };
     case ficsitcli.Action.IMPORT_PROFILE:
-      return `Importing profile ${$progress.item.name}`;
+      return { key: 'progress.title.import-profile', extraMessage: $progress.item.name };
   }
 });
 
@@ -131,7 +131,7 @@ progress.subscribe(($progress) => {
 });
 
 export const progressMessage = derived(progress, ($progress) => {
-  if (!$progress) return '';
+  if (!$progress) return undefined;
   
   const { 
     download,
@@ -146,22 +146,18 @@ export const progressMessage = derived(progress, ($progress) => {
     switch ($progress.action) {
       case ficsitcli.Action.INSTALL:
       case ficsitcli.Action.ENABLE:
-        return 'Finding the best version to install';
+        return { key: 'progress.message.find-best-version', extraMessage: '' };
       case ficsitcli.Action.UNINSTALL:
       case ficsitcli.Action.DISABLE:
-        return 'Checking for mods that are no longer needed';
+        return { key: 'progress.message.prune-mods', extraMessage: '' };
       case ficsitcli.Action.SELECT_INSTALL:
       case ficsitcli.Action.SELECT_PROFILE:
       case ficsitcli.Action.IMPORT_PROFILE:
-        return `Validating install... ${isRemoteInstall ? '(this may take a while for remote servers)' : ''}`;
+        return { key: isRemoteInstall ? 'progress.message.validate-remote-install' : 'progress.message.validate-install', extraMessage: '' } ;
       case ficsitcli.Action.UPDATE:
-        return 'Updating...';
+        return { key: 'progress.message.updating', extraMessage: '' };
       case ficsitcli.Action.TOGGLE_MODS:
-        if ($progress.item.name === 'true') {
-          return 'Restoring mods...';
-        } else {
-          return 'Removing mods...';
-        }
+        return { key: $progress.item.name === 'true' ? 'progress.message.restore-mods' : 'progress.message.remove-mods', extraMessage: '' };
     }
   }
   
@@ -172,20 +168,20 @@ export const progressMessage = derived(progress, ($progress) => {
     // Downloading something, prioritize that
     const completeMods = downloadingMods.filter((m) => m.complete);
     const { speed, eta } = get(downloadStats);
-    return `Downloading \
-            ${completeMods.length}/${downloadingMods.length} mods: \
-            ${bytesToAppropriate(download.current)}/${bytesToAppropriate(download.total)}, \
-            ${bytesToAppropriate(speed)}/s, \
-            ${eta !== undefined ? (eta !== 0 ? secondsToAppropriate(eta) : 'soon™') : '...'}`;
+    return { key: 'progress.message.download-mods', extraMessage: `\
+    ${completeMods.length}/${downloadingMods.length} mods: \
+    ${bytesToAppropriate(download.current)}/${bytesToAppropriate(download.total)}, \
+    ${bytesToAppropriate(speed)}/s, \
+    ${eta !== undefined ? (eta !== 0 ? secondsToAppropriate(eta) : 'soon™') : '...'}` };
   }
   // Not downloading anything
   const completeMods = extractingMods.filter((m) => m.complete);
   const { speed, eta } = get(extractStats);
-  return `Extracting \
+  return { key: 'progress.message.extracting-mods', extraMessage: `\
           ${completeMods.length}/${extractingMods.length} mods: \
           ${bytesToAppropriate(extract.current)}/${bytesToAppropriate(extract.total)}, \
           ${bytesToAppropriate(speed)}/s, \
-          ${eta !== undefined ? (eta !== 0 ? secondsToAppropriate(eta) : 'soon™') : '...'}`;
+          ${eta !== undefined ? (eta !== 0 ? secondsToAppropriate(eta) : 'soon™') : '...'}` };
 });
 
 export const progressPercent = derived(progress, ($progress) => {

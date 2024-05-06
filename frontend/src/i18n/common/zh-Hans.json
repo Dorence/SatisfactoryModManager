@@ -191,19 +191,23 @@
   },
   "progress": {
     "message": {
-      "Checking for mods that are no longer needed": "正在检查不再需要的模组",
-      "Disabling mods": "正在禁用模组",
-      "Enabling mods": "正在启用模组",
-      "Finding the best version to install": "正在查找最适合的版本",
-      "Updating...": "更新中…",
-      "Validating install": "正在验证模组安装"
+      "download-mods": "正在下载",
+      "extracting-mods": "正在解压",
+      "find-best-version": "正在查找最适合的版本",
+      "prune-mods": "正在检查不再需要的模组",
+      "remove-mods": "正在删除模组…",
+      "restore-mods": "正在恢复模组…",
+      "updating": "更新中…",
+      "validate-install": "正在验证安装…",
+      "validate-remote-install": "正在验证安装…（对于远程服务器，这可能需要一段时间）"
     },
     "title": {
-      "import-profile": "导入配置文件中",
-      "select-install": "选择游戏版本中",
-      "select-profile": "选择配置文件中",
-      "toggle-mods": "切换模组中",
-      "update": "更新模组中"
+      "import-profile": "导入配置文件",
+      "select-install": "选择游戏版本",
+      "select-profile": "选择配置文件",
+      "turn-mod-off": "关闭模组",
+      "turn-mods-on": "打开模组",
+      "update-mods": "更新模组"
     }
   },
   "rename": "重命名",
@@ -216,10 +220,11 @@
   "server-manager": {
     "cant-manage-server": "SMM 无法管理此服务器",
     "dedicated-servers": "独立服务器",
+    "failed-to-check-path": "无法检查所选路径是否为有效服务器",
     "failed-to-connect-server": "服务器连接失败，请点击重试",
+    "failed-to-list-directory": "无法列出目录",
     "new-server": {
       "advanced-note": "请注意转义用户名和密码中的某些字符",
-      "complete-path": "完整路径：",
       "host": "主机地址",
       "local-path": "本机服务器路径 C:\\...",
       "password": "密码",
@@ -237,6 +242,12 @@
     "debug-logging": "记录 SMM 调试日志",
     "language": "语言",
     "launch-button": "启动按钮",
+    "proxy": {
+      "proxy": "代理",
+      "remove": "删除代理",
+      "save-and-restart": "保存并重启",
+      "title": "代理设置"
+    },
     "queue": {
       "immediately": "立即开始",
       "manually": "手动开始",
@@ -261,7 +272,7 @@
   "updates": {
     "background-download": "后台下载",
     "check-for-updates": "检查更新",
-    "checking-for-updates": "正在检查更新...",
+    "checking-for-updates": "正在检查更新…",
     "downloading": "正在下载更新",
     "eta": "预计时间",
     "hide-ignored": "隐藏已忽略",

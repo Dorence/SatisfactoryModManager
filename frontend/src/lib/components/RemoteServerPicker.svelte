@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mdiFolder, mdiLoading, mdiServerNetwork, mdiSubdirectoryArrowLeft } from '@mdi/js';
+  import { getTranslate } from '@tolgee/svelte';
   import _ from 'lodash';
   import { onDestroy } from 'svelte';
 
@@ -7,6 +8,7 @@
   import { GetPathSeparator, StartPicker, StopPicker, TryPick } from '$lib/generated/wailsjs/go/ficsitcli/serverPicker';
   import type { ficsitcli } from '$lib/generated/wailsjs/go/models';
 
+  const { t } = getTranslate();
 
   export let basePath: string;
   export let disabled = false;
@@ -192,7 +194,7 @@
         {/each}
       </div>
       {#if validError && !pendingValidCheck && !error}
-        <div class="text-error-500 p-4">Failed to check if selected path is a valid server</div>
+        <div class="text-error-500 p-4">{$t('server-manager.failed-to-check-path')}</div>
       {/if}
     {/if}
   </div>
@@ -205,7 +207,7 @@
       {:else if setupError}
         <div class="text-error-500">{setupError}</div>
       {:else}
-        <div class="text-error-500">Failed to list directory</div>
+        <div class="text-error-500">{$t('server-manager.failed-to-list-directory')}</div>
       {/if}
     </div>
   {/if}

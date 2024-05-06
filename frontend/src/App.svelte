@@ -96,18 +96,7 @@
   const invalidInstallsInit = invalidInstalls.isInit;
 
   $: if($installsInit && $invalidInstallsInit && $installs.length === 0) {
-<<<<<<< HEAD
     invalidInstallsError = true;
-=======
-    if($invalidInstalls.length > 0) {
-      invalidInstallsError = true;
-    } else {
-      noInstallsError = true;
-    }
-  } else {
-    invalidInstallsError = false;
-    noInstallsError = false;
->>>>>>> master
   }
 
   const modalStore = getModalStore();
@@ -213,14 +202,13 @@
       </div>
     </div>
   </div>
-  <!--
-    skeleton modals don't provide a way to make them persistent (i.e. ignore mouse clicks outside and escape key)
-    but we can capture the events and stop them if the modal has the persistent meta flag set, and the event would have closed the modal
-  -->
-  <svelte:window
-    on:keydown|capture|nonpassive={modalKeyDown}
-    on:mousedown|capture|nonpassive={modalMouseDown} />
   <Modal components={modalRegistry} />
 </TolgeeProvider>
 
-
+<!--
+    skeleton modals don't provide a way to make them persistent (i.e. ignore mouse clicks outside and escape key)
+    but we can capture the events and stop them if the modal has the persistent meta flag set, and the event would have closed the modal
+  -->
+<svelte:window
+  on:keydown|capture|nonpassive={modalKeyDown}
+  on:mousedown|capture|nonpassive={modalMouseDown} />

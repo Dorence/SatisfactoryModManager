@@ -434,7 +434,7 @@
       <li>
         <button on:click={() => modalStore.trigger({ type: 'component', component: 'proxy' })}>
           <span class="h-5 w-5"/>
-          <span class="flex-auto">Set proxy</span>
+          <span class="flex-auto">{$t('smm-settings.proxy.title')}</span>
           <span class="h-5 w-5"><SvgIcon class="h-full w-full" icon={mdiLanConnect}/></span>
         </button>
       </li>

@@ -338,8 +338,8 @@
           </div>
         </div>
       </div>
-      {#if inProgress}
-        <span class="shrink-0 text-sm">{$progressMessage}</span>
+      {#if inProgress && $progressMessage}
+        <span class="shrink-0 text-sm">{$t($progressMessage.key)} {$progressMessage.extraMessage}</span>
       {/if}
     </div>
     <!-- The purpose of the event handlers here are to prevent navigating to the mod's page when clicking on one of the sub-buttons of the div. Thus, it shouldn't be focusable despite having "interactions" -->

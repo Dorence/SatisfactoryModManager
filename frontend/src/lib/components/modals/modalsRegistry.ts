@@ -22,4 +22,3 @@ export const modalRegistry = {
   smmUpdateReady: { ref: SMMUpdateReady } as ModalComponent,
   proxy: { ref: Proxy } as ModalComponent,
 };
-							

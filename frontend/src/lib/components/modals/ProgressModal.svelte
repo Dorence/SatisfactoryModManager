@@ -46,11 +46,17 @@
 
 <div style="max-height: calc(100vh - 3rem); max-width: calc(100vw - 3rem);" class="w-[48rem] card flex flex-col gap-2">
   <header class="card-header font-bold text-2xl text-center">
-    {$progressTitle}
+    {#if $progressTitle}
+      {$t($progressTitle.key)} {$progressTitle.extraMessage}
+    {/if}
   </header>
   <section class="p-4">
     {#if $progress}
-      <p>{$t('progress.message.' + $progress.message, $progress.message)}</p>
+      <p>
+        {#if $progressMessage}
+          {$t($progressMessage.key)} {$progressMessage.extraMessage}
+        {/if}
+      </p>
       <ProgressBar
         class="h-4 w-full"
         max={1}

@@ -8,5 +8,17 @@
   "eslint.validate": [
     "javascript",
     "svelte"
-  ]
+  ],
+  "i18n-ally.localesPaths": [
+    "src/i18n/common"
+  ],
+  "i18n-ally.enabledParsers": [
+    "json"
+  ],
+  "i18n-ally.enabledFrameworks": [
+    "svelte"
+  ],
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.review.enabled": false,
+  "i18n-ally.sourceLanguage": "en"
 }

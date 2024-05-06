@@ -191,19 +191,23 @@
   },
   "progress": {
     "message": {
-      "Checking for mods that are no longer needed": "Checking for mods that are no longer needed",
-      "Disabling mods": "Disabling mods",
-      "Enabling mods": "Enabling mods",
-      "Finding the best version to install": "Finding the best version to install",
-      "Updating...": "Updating...",
-      "Validating install": "Validating install"
+      "download-mods": "Downloading",
+      "extracting-mods": "Extracting",
+      "find-best-version": "Finding the best version to install",
+      "prune-mods": "Checking for mods that are no longer needed",
+      "remove-mods": "Removing mods...",
+      "restore-mods": "Restoring mods...",
+      "updating": "Updating...",
+      "validate-install": "Validating install...",
+      "validate-remote-install": "Validating install... (this may take a while for remote servers)"
     },
     "title": {
       "import-profile": "Importing profile",
       "select-install": "Selecting install",
       "select-profile": "Selecting profile",
-      "toggle-mods": "Toggling mods",
-      "update": "Updating mods"
+      "turn-mod-off": "Turning mods off",
+      "turn-mods-on": "Turning mods on",
+      "update-mods": "Updating mods"
     }
   },
   "rename": "Rename",
@@ -216,10 +220,11 @@
   "server-manager": {
     "cant-manage-server": "SMM cannot manage this install",
     "dedicated-servers": "Dedicated Servers",
+    "failed-to-check-path": "Failed to check if selected path is a valid server",
     "failed-to-connect-server": "Failed to connect to server, click to retry",
+    "failed-to-list-directory": "Failed to list directory",
     "new-server": {
       "advanced-note": "Note that you might have to escape certain characters in the username and password",
-      "complete-path": "Complete path: ",
       "host": "Host",
       "local-path": "C:\\Path\\To\\Server",
       "password": "Password",
@@ -237,6 +242,12 @@
     "debug-logging": "SMM debug logging",
     "language": "Language",
     "launch-button": "Launch button",
+    "proxy": {
+      "proxy": "Proxy",
+      "remove": "Remove proxy",
+      "save-and-restart": "Save and restart",
+      "title": "Set proxy"
+    },
     "queue": {
       "immediately": "Start immediately",
       "manually": "Start manually",
